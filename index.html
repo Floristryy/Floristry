@@ -75,7 +75,7 @@
             color: var(--primary-color);
         }
 
-        #admin-btn {
+        #admin-btn, #user-account-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
@@ -85,7 +85,7 @@
             transition: background-color 0.3s;
         }
 
-        #admin-btn:hover {
+        #admin-btn:hover, #user-account-btn:hover {
             background-color: #c2185b;
         }
 
@@ -810,6 +810,115 @@
             font-size: 14px;
         }
 
+        /* Система пользователей */
+        .user-account {
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin: 20px 0;
+        }
+
+        .user-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .user-tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .user-tab-content {
+            display: none;
+        }
+
+        .user-tab-content.active {
+            display: block;
+        }
+
+        .order-history {
+            margin-top: 20px;
+        }
+
+        .order-item {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-new {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-processing {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-completed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .order-products {
+            margin-top: 10px;
+        }
+
+        .order-product {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .order-product img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .user-info-form {
+            max-width: 500px;
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .hero h1 {
@@ -880,6 +989,7 @@
                     <li><a href="#products">Товары</a></li>
                     <li><a href="#about">О нас</a></li>
                     <li><a href="#contact">Контакты</a></li>
+                    <li><button id="user-account-btn">Мой аккаунт</button></li>
                     <li><button id="admin-btn">Панель админа</button></li>
                 </ul>
             </nav>
@@ -1052,7 +1162,50 @@
             <div id="order-success" class="order-success" style="display: none;">
                 <h3>Заказ успешно отправлен!</h3>
                 <p>Мы свяжемся с вами в ближайшее время для подтверждения заказа и уточнения деталей доставки.</p>
-                <a href="#" id="telegram-link" class="telegram-link" target="_blank">Открыть Telegram</a>
+                <a href="#" id="telegram-link" class="telegram-link" target="_blank">Перейти в Telegram для уточнения деталей</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно пользовательского аккаунта -->
+    <div id="user-account-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-user-account">&times;</span>
+            <h2>Мой аккаунт</h2>
+            
+            <!-- Вкладки аккаунта -->
+            <div class="user-tabs">
+                <button class="user-tab active" data-tab="orders">Мои заказы</button>
+                <button class="user-tab" data-tab="profile">Мой профиль</button>
+            </div>
+            
+            <!-- Вкладка заказов -->
+            <div id="orders-tab" class="user-tab-content active">
+                <div class="order-history" id="user-order-history">
+                    <!-- История заказов будет загружаться динамически -->
+                    <p id="no-orders-message">У вас пока нет заказов</p>
+                </div>
+            </div>
+            
+            <!-- Вкладка профиля -->
+            <div id="profile-tab" class="user-tab-content">
+                <div class="user-info-form">
+                    <div class="form-group">
+                        <label for="user-name">Имя:</label>
+                        <input type="text" id="user-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-phone">Телефон:</label>
+                        <input type="tel" id="user-phone" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Email:</label>
+                        <input type="email" id="user-email">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" id="save-profile" class="save-btn">Сохранить профиль</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1066,6 +1219,7 @@
             <!-- Вкладки -->
             <div class="admin-tabs">
                 <button class="admin-tab active" data-tab="products">Товары</button>
+                <button class="admin-tab" data-tab="users">Пользователи</button>
                 <button class="admin-tab" data-tab="flowwow">Импорт с Flowwow</button>
                 <button class="admin-tab" data-tab="import">Импорт товаров</button>
                 <button class="admin-tab" data-tab="design">Дизайн и контент</button>
@@ -1134,6 +1288,16 @@
                     <h3>Товары в магазине</h3>
                     <div id="admin-products-list">
                         <!-- Список товаров будет загружаться динамически -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Вкладка пользователей -->
+            <div id="users-tab" class="admin-tab-content">
+                <div class="admin-form">
+                    <h3>Пользователи и заказы</h3>
+                    <div id="admin-users-list">
+                        <!-- Список пользователей будет загружаться динамически -->
                     </div>
                 </div>
             </div>
@@ -1315,6 +1479,7 @@
                         <li>Создать бота через @BotFather</li>
                         <li>Получить токен бота</li>
                         <li>Узнать ваш Chat ID (можно через @userinfobot)</li>
+                        <li>Указать username вашего бота (без @)</li>
                         <li>Заполнить данные ниже</li>
                     </ol>
                     <form id="telegram-form">
@@ -1325,6 +1490,10 @@
                         <div class="form-group">
                             <label for="telegram-chat-id">Ваш Chat ID:</label>
                             <input type="text" id="telegram-chat-id" placeholder="123456789">
+                        </div>
+                        <div class="form-group">
+                            <label for="telegram-bot-username">Username бота (без @):</label>
+                            <input type="text" id="telegram-bot-username" placeholder="my_flower_bot">
                         </div>
                         <div class="form-buttons">
                             <button type="submit" class="save-btn">Сохранить настройки Telegram</button>
@@ -1446,8 +1615,14 @@
             footerInstagram: "Instagram: @flora_flowers",
             footerVk: "VK: vk.com/flora_flowers",
             telegramBotToken: "",
-            telegramChatId: ""
+            telegramChatId: "",
+            telegramBotUsername: ""
         };
+
+        // Система пользователей
+        let users = JSON.parse(localStorage.getItem('flowerShopUsers')) || [];
+        let orders = JSON.parse(localStorage.getItem('flowerShopOrders')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('flowerShopCurrentUser')) || null;
 
         // Список URL для импорта
         let importUrls = JSON.parse(localStorage.getItem('flowerShopImportUrls')) || [];
@@ -1458,23 +1633,32 @@
         const orderModal = document.getElementById('order-modal');
         const productDetailModal = document.getElementById('product-detail-modal');
         const productDetailContent = document.getElementById('product-detail-content');
+        const userAccountModal = document.getElementById('user-account-modal');
         const adminBtn = document.getElementById('admin-btn');
+        const userAccountBtn = document.getElementById('user-account-btn');
         const closeBtn = document.querySelector('.close');
         const closeOrderBtn = document.getElementById('close-order');
         const closeDetailBtn = document.getElementById('close-detail');
+        const closeUserAccountBtn = document.getElementById('close-user-account');
         const productForm = document.getElementById('product-form');
         const designForm = document.getElementById('design-form');
         const contactsForm = document.getElementById('contacts-form');
         const telegramForm = document.getElementById('telegram-form');
         const adminProductsList = document.getElementById('admin-products-list');
+        const adminUsersList = document.getElementById('admin-users-list');
         const cancelProductBtn = document.getElementById('cancel-product-btn');
         const cancelOrderBtn = document.getElementById('cancel-order');
         const submitOrderBtn = document.getElementById('submit-order');
         const adminTabs = document.querySelectorAll('.admin-tab');
         const adminTabContents = document.querySelectorAll('.admin-tab-content');
+        const userTabs = document.querySelectorAll('.user-tab');
+        const userTabContents = document.querySelectorAll('.user-tab-content');
         const orderForm = document.getElementById('order-form');
         const orderSuccess = document.getElementById('order-success');
         const telegramLink = document.getElementById('telegram-link');
+        const userOrderHistory = document.getElementById('user-order-history');
+        const noOrdersMessage = document.getElementById('no-orders-message');
+        const saveProfileBtn = document.getElementById('save-profile');
 
         // Элементы категорий
         const categoryTabs = document.querySelectorAll('.category-tab');
@@ -1686,6 +1870,13 @@
                 orderModal.style.display = 'block';
                 orderForm.style.display = 'block';
                 orderSuccess.style.display = 'none';
+                
+                // Если пользователь авторизован, заполняем его данные
+                if (currentUser) {
+                    document.getElementById('customer-name').value = currentUser.name || '';
+                    document.getElementById('customer-phone').value = currentUser.phone || '';
+                    document.getElementById('customer-address').value = currentUser.address || '';
+                }
             }
         }
 
@@ -1737,6 +1928,296 @@
                 });
             
             return true;
+        }
+
+        // Функция для создания или получения пользователя
+        function getOrCreateUser(phone, name = '') {
+            let user = users.find(u => u.phone === phone);
+            
+            if (!user) {
+                user = {
+                    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                    phone: phone,
+                    name: name,
+                    email: '',
+                    address: '',
+                    registrationDate: new Date().toISOString(),
+                    orders: []
+                };
+                users.push(user);
+                saveUsers();
+            }
+            
+            return user;
+        }
+
+        // Функция для создания заказа
+        function createOrder(orderData) {
+            const orderId = orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1;
+            
+            const order = {
+                id: orderId,
+                productId: currentOrderProduct.id,
+                productName: orderData.productName,
+                productPrice: orderData.productPrice,
+                customerName: orderData.customerName,
+                customerPhone: orderData.customerPhone,
+                customerAddress: orderData.customerAddress,
+                deliveryDate: orderData.deliveryDate,
+                deliveryTime: orderData.deliveryTime,
+                orderComment: orderData.orderComment,
+                status: 'new',
+                orderDate: new Date().toISOString()
+            };
+            
+            orders.push(order);
+            saveOrders();
+            
+            // Связываем заказ с пользователем
+            const user = getOrCreateUser(orderData.customerPhone, orderData.customerName);
+            user.orders.push(orderId);
+            
+            // Обновляем текущего пользователя
+            if (!currentUser || currentUser.phone === orderData.customerPhone) {
+                currentUser = user;
+                saveCurrentUser();
+            }
+            
+            saveUsers();
+            
+            return order;
+        }
+
+        // Функция для отображения истории заказов пользователя
+        function displayUserOrderHistory() {
+            userOrderHistory.innerHTML = '';
+            
+            if (!currentUser) {
+                noOrdersMessage.style.display = 'block';
+                return;
+            }
+            
+            const userOrders = orders.filter(order => currentUser.orders.includes(order.id));
+            
+            if (userOrders.length === 0) {
+                noOrdersMessage.style.display = 'block';
+                return;
+            }
+            
+            noOrdersMessage.style.display = 'none';
+            
+            userOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)).forEach(order => {
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-item';
+                
+                const orderDate = new Date(order.orderDate).toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let statusText = '';
+                let statusClass = '';
+                
+                switch(order.status) {
+                    case 'new':
+                        statusText = 'Новый';
+                        statusClass = 'status-new';
+                        break;
+                    case 'processing':
+                        statusText = 'В обработке';
+                        statusClass = 'status-processing';
+                        break;
+                    case 'completed':
+                        statusText = 'Выполнен';
+                        statusClass = 'status-completed';
+                        break;
+                    case 'cancelled':
+                        statusText = 'Отменен';
+                        statusClass = 'status-cancelled';
+                        break;
+                }
+                
+                orderItem.innerHTML = `
+                    <div class="order-header">
+                        <div>
+                            <strong>Заказ #${order.id}</strong>
+                            <div>${orderDate}</div>
+                        </div>
+                        <div class="order-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="order-products">
+                        <div class="order-product">
+                            <img src="${products.find(p => p.id === order.productId)?.image || ''}" alt="${order.productName}">
+                            <div>
+                                <div><strong>${order.productName}</strong></div>
+                                <div>${order.productPrice} руб.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <div><strong>Адрес доставки:</strong> ${order.customerAddress || 'Не указан'}</div>
+                        <div><strong>Дата доставки:</strong> ${order.deliveryDate || 'Не указана'}</div>
+                        <div><strong>Время доставки:</strong> ${order.deliveryTime || 'Не указано'}</div>
+                        ${order.orderComment ? `<div><strong>Комментарий:</strong> ${order.orderComment}</div>` : ''}
+                    </div>
+                `;
+                
+                userOrderHistory.appendChild(orderItem);
+            });
+        }
+
+        // Функция для отображения пользователей в админке
+        function displayAdminUsers() {
+            adminUsersList.innerHTML = '';
+            
+            if (users.length === 0) {
+                adminUsersList.innerHTML = '<p>Пользователей пока нет</p>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'admin-product-item';
+                
+                const userOrders = orders.filter(order => user.orders.includes(order.id));
+                const registrationDate = new Date(user.registrationDate).toLocaleDateString('ru-RU');
+                
+                userItem.innerHTML = `
+                    <div class="admin-product-info">
+                        <div class="admin-product-details">
+                            <h4>${user.name || 'Не указано'} (${user.phone})</h4>
+                            <p>Зарегистрирован: ${registrationDate}</p>
+                            <p>Заказов: ${userOrders.length}</p>
+                        </div>
+                    </div>
+                    <div class="admin-product-actions">
+                        <button class="edit-btn view-user-orders" data-user-id="${user.id}">Просмотреть заказы</button>
+                    </div>
+                `;
+                
+                adminUsersList.appendChild(userItem);
+            });
+            
+            // Добавляем обработчики для просмотра заказов пользователя
+            document.querySelectorAll('.view-user-orders').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const userId = parseInt(e.target.getAttribute('data-user-id'));
+                    viewUserOrders(userId);
+                });
+            });
+        }
+
+        // Функция для просмотра заказов пользователя в админке
+        function viewUserOrders(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            const userOrders = orders.filter(order => user.orders.includes(order.id));
+            
+            let ordersHtml = `<h4>Заказы пользователя: ${user.name || 'Не указано'} (${user.phone})</h4>`;
+            
+            if (userOrders.length === 0) {
+                ordersHtml += '<p>У пользователя нет заказов</p>';
+            } else {
+                userOrders.forEach(order => {
+                    let statusText = '';
+                    let statusClass = '';
+                    
+                    switch(order.status) {
+                        case 'new':
+                            statusText = 'Новый';
+                            statusClass = 'status-new';
+                            break;
+                        case 'processing':
+                            statusText = 'В обработке';
+                            statusClass = 'status-processing';
+                            break;
+                        case 'completed':
+                            statusText = 'Выполнен';
+                            statusClass = 'status-completed';
+                            break;
+                        case 'cancelled':
+                            statusText = 'Отменен';
+                            statusClass = 'status-cancelled';
+                            break;
+                    }
+                    
+                    const orderDate = new Date(order.orderDate).toLocaleDateString('ru-RU', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    ordersHtml += `
+                        <div class="order-item">
+                            <div class="order-header">
+                                <div>
+                                    <strong>Заказ #${order.id}</strong>
+                                    <div>${orderDate}</div>
+                                </div>
+                                <div class="order-status ${statusClass}">${statusText}</div>
+                            </div>
+                            <div class="order-products">
+                                <div class="order-product">
+                                    <div>
+                                        <div><strong>${order.productName}</strong></div>
+                                        <div>${order.productPrice} руб.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <div><strong>Адрес доставки:</strong> ${order.customerAddress || 'Не указан'}</div>
+                                <div><strong>Дата доставки:</strong> ${order.deliveryDate || 'Не указана'}</div>
+                                <div><strong>Время доставки:</strong> ${order.deliveryTime || 'Не указано'}</div>
+                                ${order.orderComment ? `<div><strong>Комментарий:</strong> ${order.orderComment}</div>` : ''}
+                            </div>
+                            <div class="form-buttons" style="margin-top: 10px;">
+                                <select class="order-status-select" data-order-id="${order.id}">
+                                    <option value="new" ${order.status === 'new' ? 'selected' : ''}>Новый</option>
+                                    <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В обработке</option>
+                                    <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Выполнен</option>
+                                    <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
+                                </select>
+                                <button class="save-btn update-order-status" data-order-id="${order.id}">Обновить статус</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            adminUsersList.innerHTML = ordersHtml;
+            
+            // Добавляем обработчики для обновления статусов заказов
+            document.querySelectorAll('.update-order-status').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const orderId = parseInt(e.target.getAttribute('data-order-id'));
+                    const statusSelect = document.querySelector(`.order-status-select[data-order-id="${orderId}"]`);
+                    const newStatus = statusSelect.value;
+                    
+                    updateOrderStatus(orderId, newStatus);
+                });
+            });
+        }
+
+        // Функция для обновления статуса заказа
+        function updateOrderStatus(orderId, newStatus) {
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                saveOrders();
+                alert('Статус заказа обновлен!');
+                
+                // Обновляем отображение
+                const user = users.find(u => u.orders.includes(orderId));
+                if (user) {
+                    viewUserOrders(user.id);
+                }
+            }
         }
 
         // Функция для парсинга данных с Flowwow
@@ -2205,6 +2686,12 @@
             document.getElementById('footer-vk-input').value = siteSettings.footerVk.replace('VK: ', '');
             document.getElementById('telegram-bot-token').value = siteSettings.telegramBotToken;
             document.getElementById('telegram-chat-id').value = siteSettings.telegramChatId;
+            document.getElementById('telegram-bot-username').value = siteSettings.telegramBotUsername;
+            
+            // Обновляем ссылку на Telegram
+            if (siteSettings.telegramBotUsername) {
+                telegramLink.href = `https://t.me/${siteSettings.telegramBotUsername}`;
+            }
         }
 
         // Функция для добавления нового товара
@@ -2277,6 +2764,21 @@
             localStorage.setItem('flowerShopSettings', JSON.stringify(siteSettings));
         }
 
+        // Функция для сохранения пользователей
+        function saveUsers() {
+            localStorage.setItem('flowerShopUsers', JSON.stringify(users));
+        }
+
+        // Функция для сохранения заказов
+        function saveOrders() {
+            localStorage.setItem('flowerShopOrders', JSON.stringify(orders));
+        }
+
+        // Функция для сохранения текущего пользователя
+        function saveCurrentUser() {
+            localStorage.setItem('flowerShopCurrentUser', JSON.stringify(currentUser));
+        }
+
         // Функция для сохранения списка URL для импорта
         function saveImportUrls() {
             localStorage.setItem('flowerShopImportUrls', JSON.stringify(importUrls));
@@ -2289,6 +2791,19 @@
             currentEditId = null;
             document.getElementById('edit-id').value = '';
             document.getElementById('form-title').textContent = 'Добавить новый товар';
+        }
+
+        // Функция для открытия модального окна пользовательского аккаунта
+        function openUserAccountModal() {
+            userAccountModal.style.display = 'block';
+            displayUserOrderHistory();
+            
+            // Заполняем данные профиля, если пользователь авторизован
+            if (currentUser) {
+                document.getElementById('user-name').value = currentUser.name || '';
+                document.getElementById('user-phone').value = currentUser.phone || '';
+                document.getElementById('user-email').value = currentUser.email || '';
+            }
         }
 
         // Обработчик отправки формы товаров
@@ -2372,6 +2887,7 @@
             
             siteSettings.telegramBotToken = document.getElementById('telegram-bot-token').value;
             siteSettings.telegramChatId = document.getElementById('telegram-chat-id').value;
+            siteSettings.telegramBotUsername = document.getElementById('telegram-bot-username').value;
             
             saveSiteSettings();
             applySiteSettings();
@@ -2404,6 +2920,9 @@
                 orderComment
             };
             
+            // Создаем заказ в системе
+            createOrder(orderData);
+            
             // Отправляем заказ в Telegram
             const success = sendOrderToTelegram(orderData);
             
@@ -2411,6 +2930,11 @@
                 // Показываем сообщение об успехе
                 orderForm.style.display = 'none';
                 orderSuccess.style.display = 'block';
+                
+                // Обновляем ссылку на Telegram
+                if (siteSettings.telegramBotUsername) {
+                    telegramLink.href = `https://t.me/${siteSettings.telegramBotUsername}`;
+                }
                 
                 // Очищаем форму
                 document.getElementById('customer-name').value = '';
@@ -2420,6 +2944,25 @@
                 document.getElementById('delivery-time').value = '';
                 document.getElementById('order-comment').value = '';
             }
+        });
+
+        // Обработчик сохранения профиля пользователя
+        saveProfileBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                alert('Пожалуйста, сначала сделайте заказ чтобы создать аккаунт');
+                return;
+            }
+            
+            const userName = document.getElementById('user-name').value;
+            const userEmail = document.getElementById('user-email').value;
+            
+            currentUser.name = userName;
+            currentUser.email = userEmail;
+            
+            saveUsers();
+            saveCurrentUser();
+            
+            alert('Профиль сохранен!');
         });
 
         // Обработчики для импорта
@@ -2448,8 +2991,11 @@
         adminBtn.addEventListener('click', () => {
             adminModal.style.display = 'block';
             displayAdminProducts();
+            displayAdminUsers();
             displayImportUrls();
         });
+
+        userAccountBtn.addEventListener('click', openUserAccountModal);
 
         closeBtn.addEventListener('click', () => {
             adminModal.style.display = 'none';
@@ -2462,6 +3008,10 @@
 
         closeDetailBtn.addEventListener('click', () => {
             productDetailModal.style.display = 'none';
+        });
+
+        closeUserAccountBtn.addEventListener('click', () => {
+            userAccountModal.style.display = 'none';
         });
 
         cancelProductBtn.addEventListener('click', () => {
@@ -2484,6 +3034,9 @@
             if (e.target === productDetailModal) {
                 productDetailModal.style.display = 'none';
             }
+            if (e.target === userAccountModal) {
+                userAccountModal.style.display = 'none';
+            }
         });
 
         // Переключение вкладок администратора
@@ -2494,6 +3047,21 @@
                 // Убираем активный класс у всех вкладок и контента
                 adminTabs.forEach(t => t.classList.remove('active'));
                 adminTabContents.forEach(c => c.classList.remove('active'));
+                
+                // Добавляем активный класс текущей вкладке и контенту
+                tab.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Переключение вкладок пользовательского аккаунта
+        userTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Убираем активный класс у всех вкладок и контента
+                userTabs.forEach(t => t.classList.remove('active'));
+                userTabContents.forEach(c => c.classList.remove('active'));
                 
                 // Добавляем активный класс текущей вкладке и контенту
                 tab.classList.add('active');
@@ -2537,10 +3105,11 @@
             applySiteSettings();
             displayImportUrls();
             
-            // Устанавливаем ссылку на Telegram
-            telegramLink.href = 'https://t.me/' + (siteSettings.telegramChatId ? siteSettings.telegramChatId : '');
+            // Обновляем ссылку на Telegram
+            if (siteSettings.telegramBotUsername) {
+                telegramLink.href = `https://t.me/${siteSettings.telegramBotUsername}`;
+            }
         });
     </script>
 </body>
 </html>
-
