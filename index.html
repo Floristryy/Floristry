@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Цветочный магазин "Флора"</title>
     <style>
-        /* Все предыдущие стили остаются без изменений */
         :root {
             --primary-color: #e91e63;
             --secondary-color: #4CAF50;
@@ -21,9 +20,95 @@
             font-family: 'Arial', sans-serif;
         }
 
-        /* ... весь остальной CSS код без изменений ... */
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-color);
+        }
 
-        /* Стили для окна входа в админку */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Шапка */
+        header {
+            background-color: #fff;
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        #user-account-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #user-account-btn:hover {
+            background-color: #c2185b;
+        }
+
+        /* Скрытая кнопка админки */
+        .hidden-admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Окно входа в админку */
         .admin-login-modal {
             display: none;
             position: fixed;
@@ -43,18 +128,6 @@
             width: 90%;
             max-width: 400px;
             position: relative;
-            text-align: center;
-        }
-
-        .admin-login-content h2 {
-            margin-bottom: 20px;
-            color: var(--dark-color);
-        }
-
-        .admin-login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
         .login-error {
@@ -64,23 +137,272 @@
             display: none;
         }
 
-        /* Скрытая кнопка для открытия админки (только для админа) */
-        .hidden-admin-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--primary-color);
+        /* Остальные стили остаются как были */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1487070183333-3c0b8a2656ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 70vh;
+            display: flex;
+            align-items: center;
             color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 1001;
-            display: none;
+            text-align: center;
+            margin-top: 60px;
         }
 
-        .hidden-admin-btn:hover {
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
             background-color: #c2185b;
+        }
+
+        .products {
+            padding: 80px 0;
+        }
+
+        .products h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .product-description {
+            color: #666;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .order-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .order-btn:hover {
+            background-color: #45a049;
+        }
+
+        .about {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .about h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-image {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 20px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+            }
+            
+            nav ul li {
+                margin: 5px 0;
+            }
+            
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -96,21 +418,20 @@
                     <li><a href="#about">О нас</a></li>
                     <li><a href="#contact">Контакты</a></li>
                     <li><button id="user-account-btn">Мой аккаунт</button></li>
-                    <!-- Убрали кнопку админки из основного меню -->
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- Скрытая кнопка админки (появляется только после входа) -->
+    <!-- Скрытая кнопка админки -->
     <button class="hidden-admin-btn" id="hidden-admin-btn" title="Панель администратора">⚙️</button>
 
     <!-- Окно входа в админку -->
     <div id="admin-login-modal" class="admin-login-modal">
-        <div class="admin-login-content">
+        <div class="modal-content admin-login-content">
             <span class="close" id="close-admin-login">&times;</span>
             <h2>Вход в панель администратора</h2>
-            <form id="admin-login-form" class="admin-login-form">
+            <form id="admin-login-form">
                 <div class="form-group">
                     <label for="admin-login">Логин:</label>
                     <input type="text" id="admin-login" required>
@@ -130,7 +451,7 @@
         </div>
     </div>
 
-    <!-- Главный баннер и остальной контент без изменений -->
+    <!-- Главный баннер -->
     <section id="home" class="hero">
         <div class="container">
             <h1 id="hero-title">Прекрасные цветы для особенных моментов</h1>
@@ -139,7 +460,115 @@
         </div>
     </section>
 
-    <!-- ... весь остальной HTML код без изменений ... -->
+    <!-- Каталог товаров -->
+    <section id="products" class="products">
+        <div class="container">
+            <h2 id="products-title">Наши товары</h2>
+            <div class="products-grid" id="products-grid">
+                <!-- Товары будут загружаться динамически -->
+            </div>
+        </div>
+    </section>
+
+    <!-- О нас -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 id="about-title">О нашем магазине</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p id="about-text">Мы - цветочный магазин "Флора", работаем с 2010 года. Наша миссия - дарить радость и красоту через цветы.</p>
+                </div>
+                <div class="about-image">
+                    <img id="about-image" src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Интерьер магазина">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Подвал -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p id="footer-phone">Телефон: +7 (123) 456-78-90</p>
+                    <p id="footer-address">Адрес: ул. Цветочная, 15</p>
+                    <p id="footer-email">Email: info@flora.ru</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Часы работы</h3>
+                    <p id="footer-hours-weekdays">Пн-Пт: 9:00 - 20:00</p>
+                    <p id="footer-hours-weekend">Сб-Вс: 10:00 - 18:00</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно заказа -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-order">&times;</span>
+            <h2>Оформление заказа</h2>
+            <div id="order-form">
+                <div class="form-group">
+                    <label for="customer-name">Ваше имя:</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Ваш телефон:</label>
+                    <input type="tel" id="customer-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer-address">Адрес доставки:</label>
+                    <input type="text" id="customer-address">
+                </div>
+                <div class="form-buttons">
+                    <button type="button" id="submit-order" class="save-btn">Отправить заказ в Telegram</button>
+                    <button type="button" class="cancel-btn" id="cancel-order">Отмена</button>
+                </div>
+            </div>
+            <div id="order-success" style="display: none;">
+                <h3>Заказ успешно отправлен!</h3>
+                <p>Мы свяжемся с вами в ближайшее время.</p>
+                <a href="#" id="telegram-link" target="_blank">Перейти в Telegram</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно администратора -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Панель администратора</h2>
+            <div class="admin-form">
+                <h3>Управление товарами</h3>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">Название:</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Цена:</label>
+                        <input type="number" id="product-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">Изображение:</label>
+                        <input type="url" id="product-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Описание:</label>
+                        <textarea id="product-description"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-btn">Добавить товар</button>
+                    </div>
+                </form>
+            </div>
+            <div id="admin-products-list">
+                <!-- Список товаров для админа -->
+            </div>
+        </div>
+    </div>
 
     <script>
         // Данные для входа в админку
@@ -148,20 +577,37 @@
             password: 'Ruuk1001'
         };
 
-        // Проверяем, авторизован ли админ
+        // Проверяем авторизацию админа
         let isAdminLoggedIn = localStorage.getItem('flowerShopAdminLoggedIn') === 'true';
 
-        // Элементы для админ-авторизации
+        // Элементы для админки
         const adminLoginModal = document.getElementById('admin-login-modal');
         const adminLoginForm = document.getElementById('admin-login-form');
         const adminLoginInput = document.getElementById('admin-login');
         const adminPasswordInput = document.getElementById('admin-password');
         const adminLoginError = document.getElementById('admin-login-error');
-        const closeAdminLoginBtn = document.getElementById('close-admin-login');
-        const cancelAdminLoginBtn = document.getElementById('cancel-admin-login');
         const hiddenAdminBtn = document.getElementById('hidden-admin-btn');
+        const adminModal = document.getElementById('admin-modal');
 
-        // Функция для показа/скрытия кнопки админки
+        // Товары
+        let products = JSON.parse(localStorage.getItem('flowerShopProducts')) || [
+            {
+                id: 1,
+                name: "Букет роз",
+                price: 2500,
+                image: "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                description: "Прекрасный букет из 25 красных роз"
+            },
+            {
+                id: 2,
+                name: "Тюльпаны",
+                price: 1500,
+                image: "https://images.unsplash.com/photo-1582794543139-8ac9cad0c8e3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                description: "Свежие тюльпаны разных цветов"
+            }
+        ];
+
+        // Показываем/скрываем кнопку админки
         function toggleAdminButton() {
             if (isAdminLoggedIn) {
                 hiddenAdminBtn.style.display = 'block';
@@ -170,7 +616,7 @@
             }
         }
 
-        // Функция для открытия окна входа в админку
+        // Открываем окно входа в админку
         function openAdminLogin() {
             adminLoginModal.style.display = 'block';
             adminLoginInput.value = '';
@@ -178,7 +624,7 @@
             adminLoginError.style.display = 'none';
         }
 
-        // Функция для входа в админку
+        // Вход в админку
         function loginToAdmin(login, password) {
             if (login === ADMIN_CREDENTIALS.login && password === ADMIN_CREDENTIALS.password) {
                 isAdminLoggedIn = true;
@@ -192,21 +638,11 @@
             }
         }
 
-        // Функция для выхода из админки
-        function logoutFromAdmin() {
-            isAdminLoggedIn = false;
-            localStorage.setItem('flowerShopAdminLoggedIn', 'false');
-            toggleAdminButton();
-            if (adminModal.style.display === 'block') {
-                adminModal.style.display = 'none';
-            }
-        }
-
-        // Секретная комбинация для открытия окна входа (например, клик по логотипу 3 раза)
+        // Секретный вход по клику на логотип
         let logoClickCount = 0;
         let logoClickTimer;
 
-        function handleSecretAdminAccess() {
+        document.getElementById('site-logo').addEventListener('click', function() {
             logoClickCount++;
             clearTimeout(logoClickTimer);
             logoClickTimer = setTimeout(() => {
@@ -217,76 +653,96 @@
                 openAdminLogin();
                 logoClickCount = 0;
             }
-        }
+        });
 
-        // Обработчики событий для админ-авторизации
-        document.getElementById('site-logo').addEventListener('click', handleSecretAdminAccess);
-
-        adminLoginForm.addEventListener('submit', (e) => {
+        // Обработчики для админки
+        adminLoginForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const login = adminLoginInput.value.trim();
             const password = adminPasswordInput.value.trim();
             loginToAdmin(login, password);
         });
 
-        closeAdminLoginBtn.addEventListener('click', () => {
+        document.getElementById('close-admin-login').addEventListener('click', function() {
             adminLoginModal.style.display = 'none';
         });
 
-        cancelAdminLoginBtn.addEventListener('click', () => {
+        document.getElementById('cancel-admin-login').addEventListener('click', function() {
             adminLoginModal.style.display = 'none';
         });
 
-        // Обработчик для скрытой кнопки админки
-        hiddenAdminBtn.addEventListener('click', () => {
+        hiddenAdminBtn.addEventListener('click', function() {
             if (isAdminLoggedIn) {
                 adminModal.style.display = 'block';
-                displayAdminProducts();
-                displayAdminUsers();
-                displayImportUrls();
             }
         });
 
-        // Закрытие модального окна входа при клике вне его
-        window.addEventListener('click', (e) => {
-            if (e.target === adminLoginModal) {
-                adminLoginModal.style.display = 'none';
+        // Закрытие модальных окон
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
             }
         });
 
-        // Защита админ-модалки - проверяем авторизацию при открытии
-        const originalAdminBtnClick = adminBtn.onclick;
-        adminBtn.onclick = function() {
-            if (!isAdminLoggedIn) {
-                openAdminLogin();
-                return false;
-            }
-            return originalAdminBtnClick();
-        };
+        // Отображение товаров
+        function displayProducts() {
+            const productsGrid = document.getElementById('products-grid');
+            productsGrid.innerHTML = '';
 
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            // ... остальная инициализация ...
-            
-            // Показываем кнопку админки если уже авторизован
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-price">${product.price} руб.</p>
+                        <p class="product-description">${product.description}</p>
+                        <button class="order-btn" data-id="${product.id}">Заказать</button>
+                    </div>
+                `;
+                productsGrid.appendChild(productCard);
+            });
+
+            // Обработчики для кнопок заказа
+            document.querySelectorAll('.order-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    const product = products.find(p => p.id === productId);
+                    if (product) {
+                        document.getElementById('order-modal').style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProducts();
             toggleAdminButton();
-            
-            // Устанавливаем минимальную дату как сегодня
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('delivery-date').min = today;
-            
-            displayProductsByCategory();
-            applySiteSettings();
-            displayImportUrls();
-            
-            // Обновляем ссылку на Telegram
-            if (siteSettings.telegramBotUsername) {
-                telegramLink.href = `https://t.me/${siteSettings.telegramBotUsername}`;
-            }
         });
 
-        // Остальной JavaScript код без изменений...
-        // [Весь предыдущий JavaScript код остается здесь]
+        // Отправка заказа в Telegram
+        document.getElementById('submit-order').addEventListener('click', function() {
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const address = document.getElementById('customer-address').value;
+
+            if (!name || !phone) {
+                alert('Заполните имя и телефон');
+                return;
+            }
+
+            // Здесь будет код отправки в Telegram
+            document.getElementById('order-form').style.display = 'none';
+            document.getElementById('order-success').style.display = 'block';
+        });
     </script>
 </body>
 </html>
