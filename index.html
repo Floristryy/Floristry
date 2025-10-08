@@ -1,16 +1,175 @@
-// Функция для применения настроек сайта
-function applySiteSettings() {
-    // ... существующий код ...
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цветочный магазин</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        header {
+            background-color: #ff66b2;
+            padding: 1rem;
+            text-align: center;
+            color: white;
+        }
+        
+        nav {
+            background-color: #ff99cc;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: bold;
+        }
+        
+        .hero {
+            background-color: #f8f8f8;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+        
+        .about-section {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .about-block {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            gap: 2rem;
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-image {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .about-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .about-block {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌸 Цветочный магазин "Флористика" 🌸</h1>
+    </header>
     
-    // Новые поля для блоков "О нас"
-    document.getElementById('about-text-2').textContent = siteSettings.aboutText2;
-    document.getElementById('about-image-2').src = siteSettings.aboutImage2;
-    document.getElementById('about-text-3').textContent = siteSettings.aboutText3;
-    document.getElementById('about-image-3').src = siteSettings.aboutImage3;
+    <nav>
+        <a href="#about">О нас</a>
+        <a href="#products">Товары</a>
+        <a href="#contacts">Контакты</a>
+    </nav>
     
-    // Заполняем формы в админке
-    document.getElementById('about-text-2-input').value = siteSettings.aboutText2;
-    document.getElementById('about-image-2-input').value = siteSettings.aboutImage2;
-    document.getElementById('about-text-3-input').value = siteSettings.aboutText3;
-    document.getElementById('about-image-3-input').value = siteSettings.aboutImage3;
-}
+    <section class="hero">
+        <h2>Прекрасные цветы для ваших моментов</h2>
+        <p>Создаем красоту с любовью и заботой</p>
+    </section>
+    
+    <section id="about" class="about-section">
+        <h2>О нашем магазине</h2>
+        
+        <div class="about-block">
+            <div class="about-text">
+                <h3>Наша история</h3>
+                <p>Мы создаем прекрасные букеты уже более 5 лет, даря радость нашим клиентам.</p>
+            </div>
+            <div class="about-image">
+                <img id="about-image-1" src="https://via.placeholder.com/400x300" alt="Наш магазин">
+            </div>
+        </div>
+        
+        <div class="about-block">
+            <div class="about-text">
+                <h3>Наши ценности</h3>
+                <p id="about-text-2">Качество и свежесть цветов - наш главный приоритет. Мы работаем только с проверенными поставщиками.</p>
+            </div>
+            <div class="about-image">
+                <img id="about-image-2" src="https://via.placeholder.com/400x300" alt="Наши ценности">
+            </div>
+        </div>
+        
+        <div class="about-block">
+            <div class="about-text">
+                <h3>Доставка</h3>
+                <p id="about-text-3">Быстрая и бережная доставка по всему городу. Ваши цветы прибудут свежими и красивыми.</p>
+            </div>
+            <div class="about-image">
+                <img id="about-image-3" src="https://via.placeholder.com/400x300" alt="Доставка">
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>📞 Телефон: +7 (XXX) XXX-XX-XX</p>
+        <p>📍 Адрес: г. Москва, ул. Цветочная, д. 1</p>
+        <p>© 2024 Цветочный магазин "Флористика"</p>
+    </footer>
+
+    <script>
+        // Функция для применения настроек сайта
+        function applySiteSettings() {
+            // Настройки для блоков "О нас"
+            const siteSettings = {
+                aboutText2: 'Мы используем только свежие цветы от лучших поставщиков. Каждый букет создается с любовью и вниманием к деталям.',
+                aboutImage2: 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?w=400&h=300&fit=crop',
+                aboutText3: 'Бесплатная доставка по городу в течение 2 часов. Мы тщательно упаковываем каждый букет, чтобы он дошел до вас в идеальном состоянии.',
+                aboutImage3: 'https://images.unsplash.com/photo-1585004349986-57ad43ac6e6a?w=400&h=300&fit=crop'
+            };
+            
+            // Применяем настройки
+            document.getElementById('about-text-2').textContent = siteSettings.aboutText2;
+            document.getElementById('about-image-2').src = siteSettings.aboutImage2;
+            document.getElementById('about-text-3').textContent = siteSettings.aboutText3;
+            document.getElementById('about-image-3').src = siteSettings.aboutImage3;
+            
+            // Заглушки для форм админки (если они понадобятся позже)
+            /*
+            document.getElementById('about-text-2-input').value = siteSettings.aboutText2;
+            document.getElementById('about-image-2-input').value = siteSettings.aboutImage2;
+            document.getElementById('about-text-3-input').value = siteSettings.aboutText3;
+            document.getElementById('about-image-3-input').value = siteSettings.aboutImage3;
+            */
+        }
+        
+        // Вызываем функцию при загрузке страницы
+        document.addEventListener('DOMContentLoaded', applySiteSettings);
+    </script>
+</body>
+</html>
