@@ -1,0 +1,16 @@
+// Функция для применения настроек сайта
+function applySiteSettings() {
+    // ... существующий код ...
+    
+    // Новые поля для блоков "О нас"
+    document.getElementById('about-text-2').textContent = siteSettings.aboutText2;
+    document.getElementById('about-image-2').src = siteSettings.aboutImage2;
+    document.getElementById('about-text-3').textContent = siteSettings.aboutText3;
+    document.getElementById('about-image-3').src = siteSettings.aboutImage3;
+    
+    // Заполняем формы в админке
+    document.getElementById('about-text-2-input').value = siteSettings.aboutText2;
+    document.getElementById('about-image-2-input').value = siteSettings.aboutImage2;
+    document.getElementById('about-text-3-input').value = siteSettings.aboutText3;
+    document.getElementById('about-image-3-input').value = siteSettings.aboutImage3;
+}
