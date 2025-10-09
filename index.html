@@ -1869,6 +1869,85 @@
         // Пароль для админки
         const ADMIN_PASSWORD = "Ruuk1001";
 
+        // Функция для проверки настроек Telegram
+        function checkTelegramSettings() {
+            if (!siteSettings.telegramBotToken || !siteSettings.telegramChatId) {
+                console.warn('⚠️ Настройки Telegram не заполнены');
+                return false;
+            }
+            
+            // Проверяем формат токена (должен содержать двоеточие)
+            if (!siteSettings.telegramBotToken.includes(':')) {
+                console.error('❌ Неверный формат токена бота');
+                return false;
+            }
+            
+            // Проверяем, что Chat ID состоит из цифр
+            if (!/^\d+$/.test(siteSettings.telegramChatId)) {
+                console.error('❌ Неверный формат Chat ID');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Функция для отправки заказа в Telegram (исправленная)
+        async function sendOrderToTelegram(orderData) {
+            // Проверяем настройки Telegram
+            if (!checkTelegramSettings()) {
+                alert('Владелец сайта не настроил получение заказов в Telegram. Пожалуйста, свяжитесь по телефону.');
+                return false;
+            }
+
+            const botToken = siteSettings.telegramBotToken;
+            const chatId = siteSettings.telegramChatId;
+            
+            // Формируем текст сообщения с информацией о доставке
+            const message = `🎉 НОВЫЙ ЗАКАЗ ИЗ МАГАЗИНА "ФЛОРА"\n\n` +
+                           `📦 Товар: ${orderData.productName}\n` +
+                           `💰 Цена: ${orderData.productPrice} руб.\n` +
+                           `👤 Имя: ${orderData.customerName}\n` +
+                           `📞 Телефон: ${orderData.customerPhone}\n` +
+                           `📍 Адрес: ${orderData.customerAddress || 'Не указан (возможно самовывоз)'}\n` +
+                           `📅 Дата доставки: ${orderData.deliveryDate || 'Не указана'}\n` +
+                           `⏰ Время доставки: ${orderData.deliveryTime || 'Не указано'}\n` +
+                           `💬 Комментарий: ${orderData.orderComment || 'Отсутствует'}\n\n` +
+                           `🕒 Время заказа: ${new Date().toLocaleString('ru-RU')}\n\n` +
+                           `❗️ НЕОБХОДИМО СВЯЗАТЬСЯ С КЛИЕНТОМ ДЛЯ ПОДТВЕРЖДЕНИЯ`;
+
+            // Кодируем сообщение для URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Формируем URL для запроса к API Telegram
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}&parse_mode=HTML`;
+            
+            try {
+                // Отправляем запрос и ждем ответа
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    console.log('✅ Заказ успешно отправлен в Telegram');
+                    return true;
+                } else {
+                    console.error('❌ Ошибка отправки заказа в Telegram:', data);
+                    // Показываем пользователю более информативное сообщение
+                    if (data.error_code === 400) {
+                        alert('Ошибка: Неверный Chat ID. Проверьте настройки Telegram в панели администратора.');
+                    } else if (data.error_code === 401) {
+                        alert('Ошибка: Неверный токен бота. Проверьте настройки Telegram в панели администратора.');
+                    } else {
+                        alert('Ошибка отправки заказа в Telegram. Пожалуйста, свяжитесь с нами по телефону.');
+                    }
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Ошибка сети при отправке заказа:', error);
+                alert('Ошибка сети при отправке заказа. Пожалуйста, свяжитесь с нами по телефону.');
+                return false;
+            }
+        }
+
         // Функция для отображения товаров по категориям
         function displayProductsByCategory() {
             // Очищаем все категории
@@ -2063,56 +2142,6 @@
                     document.getElementById('customer-name').value = '';
                 }
             }
-        }
-
-        // Функция для отправки заказа в Telegram
-        function sendOrderToTelegram(orderData) {
-            // Проверяем, настроены ли данные Telegram
-            if (!siteSettings.telegramBotToken || !siteSettings.telegramChatId) {
-                alert('Владелец сайта не настроил получение заказов в Telegram. Пожалуйста, свяжитесь по телефону.');
-                return false;
-            }
-
-            const botToken = siteSettings.telegramBotToken;
-            const chatId = siteSettings.telegramChatId;
-            
-            // Формируем текст сообщения с информацией о доставке
-            const message = `Новый заказ из цветочного магазина:\n\n` +
-                           `Товар: ${orderData.productName}\n` +
-                           `Цена: ${orderData.productPrice} руб.\n` +
-                           `Имя: ${orderData.customerName}\n` +
-                           `Телефон: ${orderData.customerPhone}\n` +
-                           `Адрес: ${orderData.customerAddress || 'Не указан'}\n` +
-                           `Дата доставки: ${orderData.deliveryDate || 'Не указана'}\n` +
-                           `Время доставки: ${orderData.deliveryTime || 'Не указано'}\n` +
-                           `Комментарий: ${orderData.orderComment || 'Отсутствует'}\n\n` +
-                           `Время заказа: ${new Date().toLocaleString()}\n\n` +
-                           `❗️ НЕОБХОДИМО УТОЧНИТЬ ДОСТАВКУ`;
-
-            // Кодируем сообщение для URL
-            const encodedMessage = encodeURIComponent(message);
-            
-            // Формируем URL для запроса к API Telegram
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodedMessage}`;
-            
-            // Отправляем запрос
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log('Заказ отправлен в Telegram');
-                        return true;
-                    } else {
-                        console.error('Ошибка отправки заказа в Telegram:', data);
-                        return false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка отправки заказа:', error);
-                    return false;
-                });
-            
-            return true;
         }
 
         // Функция для создания нового заказа
@@ -3120,8 +3149,8 @@
             }
         });
 
-        // Обработчик отправки заказа
-        submitOrderBtn.addEventListener('click', () => {
+        // Обработчик отправки заказа (исправленный)
+        submitOrderBtn.addEventListener('click', async () => {
             const customerName = document.getElementById('customer-name').value;
             const customerPhone = document.getElementById('customer-phone').value;
             const customerAddress = document.getElementById('customer-address').value;
@@ -3131,6 +3160,13 @@
             
             if (!customerName || !customerPhone) {
                 alert('Пожалуйста, заполните обязательные поля: имя и телефон');
+                return;
+            }
+            
+            // Проверяем формат телефона
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+            if (!phoneRegex.test(customerPhone.replace(/\s/g, ''))) {
+                alert('Пожалуйста, введите корректный номер телефона');
                 return;
             }
             
@@ -3145,30 +3181,43 @@
                 orderComment
             };
             
-            // Создаем заказ
-            createOrder(orderData);
+            // Блокируем кнопку на время отправки
+            submitOrderBtn.disabled = true;
+            submitOrderBtn.textContent = 'Отправка...';
             
-            // Отправляем заказ в Telegram
-            const success = sendOrderToTelegram(orderData);
-            
-            if (success) {
-                // Показываем сообщение об успехе
-                orderForm.style.display = 'none';
-                orderSuccess.style.display = 'block';
+            try {
+                // Создаем заказ
+                createOrder(orderData);
                 
-                // Очищаем форму
-                document.getElementById('customer-name').value = '';
-                document.getElementById('customer-phone').value = '';
-                document.getElementById('customer-address').value = '';
-                document.getElementById('delivery-date').value = '';
-                document.getElementById('delivery-time').value = '';
-                document.getElementById('order-comment').value = '';
+                // Отправляем заказ в Telegram и ждем результата
+                const success = await sendOrderToTelegram(orderData);
                 
-                // Если пользователь зарегистрирован, показываем сообщение о возможности отслеживания
-                if (orderWithAccount && currentUser) {
-                    document.querySelector('#order-success p').textContent = 
-                        'Мы свяжемся с вами в ближайшее время для подтверждения заказа и уточнения деталей доставки. Вы можете отслеживать статус заказа в разделе "Мои заказы".';
+                if (success) {
+                    // Показываем сообщение об успехе
+                    orderForm.style.display = 'none';
+                    orderSuccess.style.display = 'block';
+                    
+                    // Очищаем форму
+                    document.getElementById('customer-name').value = '';
+                    document.getElementById('customer-phone').value = '';
+                    document.getElementById('customer-address').value = '';
+                    document.getElementById('delivery-date').value = '';
+                    document.getElementById('delivery-time').value = '';
+                    document.getElementById('order-comment').value = '';
+                    
+                    // Если пользователь зарегистрирован, показываем сообщение о возможности отслеживания
+                    if (orderWithAccount && currentUser) {
+                        document.querySelector('#order-success p').textContent = 
+                            'Мы свяжемся с вами в ближайшее время для подтверждения заказа и уточнения деталей доставки. Вы можете отслеживать статус заказа в разделе "Мои заказы".';
+                    }
                 }
+            } catch (error) {
+                console.error('Ошибка при оформлении заказа:', error);
+                alert('Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз или свяжитесь с нами по телефону.');
+            } finally {
+                // Разблокируем кнопку
+                submitOrderBtn.disabled = false;
+                submitOrderBtn.textContent = 'Отправить заказ';
             }
         });
 
