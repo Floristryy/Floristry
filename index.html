@@ -59,6 +59,7 @@
         nav ul {
             display: flex;
             list-style: none;
+            align-items: center;
         }
 
         nav ul li {
@@ -75,7 +76,7 @@
             color: var(--primary-color);
         }
 
-        #admin-btn {
+        #admin-btn, #login-btn, #register-btn, #logout-btn, #orders-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
@@ -85,7 +86,7 @@
             transition: background-color 0.3s;
         }
 
-        #admin-btn:hover {
+        #admin-btn:hover, #login-btn:hover, #register-btn:hover, #logout-btn:hover, #orders-btn:hover {
             background-color: #c2185b;
         }
 
@@ -810,6 +811,151 @@
             font-size: 14px;
         }
 
+        /* Секция заказов */
+        .orders-section {
+            padding: 80px 0;
+        }
+
+        .orders-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            color: var(--dark-color);
+        }
+
+        .orders-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .order-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-info h3 {
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+
+        .order-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-new {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-confirmed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-processing {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-shipped {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+
+        .status-delivered {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .order-details {
+            margin-bottom: 15px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .order-total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: right;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Формы входа и регистрации */
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .auth-tab-content {
+            display: none;
+        }
+
+        .auth-tab-content.active {
+            display: block;
+        }
+
+        /* Форма ввода пароля для админки */
+        .password-form {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .password-form h3 {
+            margin-bottom: 20px;
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .hero h1 {
@@ -866,6 +1012,15 @@
                 text-align: center;
                 margin-bottom: 10px;
             }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-status {
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -880,7 +1035,17 @@
                     <li><a href="#products">Товары</a></li>
                     <li><a href="#about">О нас</a></li>
                     <li><a href="#contact">Контакты</a></li>
-                    <li><button id="admin-btn">Панель админа</button></li>
+                    <li id="auth-buttons">
+                        <button id="login-btn">Войти</button>
+                        <button id="register-btn">Регистрация</button>
+                    </li>
+                    <li id="user-buttons" style="display: none;">
+                        <button id="orders-btn">Мои заказы</button>
+                        <button id="logout-btn">Выйти</button>
+                    </li>
+                    <li id="admin-button-container" style="display: none;">
+                        <button id="admin-btn">Панель админа</button>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -945,6 +1110,16 @@
                 <div class="products-grid" id="products-grid-sets">
                     <!-- Наборы будут загружаться динамически -->
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Секция "Мои заказы" -->
+    <section id="orders" class="orders-section" style="display: none;">
+        <div class="container">
+            <h2>Мои заказы</h2>
+            <div class="orders-list" id="orders-list">
+                <!-- Заказы будут загружаться динамически -->
             </div>
         </div>
     </section>
@@ -1057,6 +1232,85 @@
         </div>
     </div>
 
+    <!-- Модальное окно аутентификации -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-auth">&times;</span>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Вход</button>
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+            </div>
+            
+            <div id="login-tab" class="auth-tab-content active">
+                <div class="auth-form">
+                    <h3>Вход в аккаунт</h3>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email">Email:</label>
+                            <input type="email" id="login-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Пароль:</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Войти</button>
+                            <button type="button" class="cancel-btn" id="cancel-login">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="register-tab" class="auth-tab-content">
+                <div class="auth-form">
+                    <h3>Регистрация</h3>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-name">Имя:</label>
+                            <input type="text" id="register-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email:</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Пароль:</label>
+                            <input type="password" id="register-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Подтвердите пароль:</label>
+                            <input type="password" id="register-confirm-password" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Зарегистрироваться</button>
+                            <button type="button" class="cancel-btn" id="cancel-register">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно ввода пароля для админки -->
+    <div id="admin-password-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-admin-password">&times;</span>
+            <div class="password-form">
+                <h3>Введите пароль администратора</h3>
+                <form id="admin-password-form">
+                    <div class="form-group">
+                        <label for="admin-password">Пароль:</label>
+                        <input type="password" id="admin-password" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-btn">Войти</button>
+                        <button type="button" class="cancel-btn" id="cancel-admin-password">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно администратора -->
     <div id="admin-modal" class="modal">
         <div class="modal-content">
@@ -1065,7 +1319,8 @@
             
             <!-- Вкладки -->
             <div class="admin-tabs">
-                <button class="admin-tab active" data-tab="products">Товары</button>
+                <button class="admin-tab active" data-tab="orders">Заказы</button>
+                <button class="admin-tab" data-tab="products">Товары</button>
                 <button class="admin-tab" data-tab="flowwow">Импорт с Flowwow</button>
                 <button class="admin-tab" data-tab="import">Импорт товаров</button>
                 <button class="admin-tab" data-tab="design">Дизайн и контент</button>
@@ -1073,8 +1328,16 @@
                 <button class="admin-tab" data-tab="telegram">Telegram</button>
             </div>
             
+            <!-- Вкладка заказов -->
+            <div id="orders-tab" class="admin-tab-content active">
+                <h3>Управление заказами</h3>
+                <div id="admin-orders-list">
+                    <!-- Список заказов будет загружаться динамически -->
+                </div>
+            </div>
+            
             <!-- Вкладка товаров -->
-            <div id="products-tab" class="admin-tab-content active">
+            <div id="products-tab" class="admin-tab-content">
                 <!-- Форма добавления/редактирования товара -->
                 <div class="admin-form">
                     <h3 id="form-title">Добавить новый товар</h3>
@@ -1452,6 +1715,11 @@
         // Список URL для импорта
         let importUrls = JSON.parse(localStorage.getItem('flowerShopImportUrls')) || [];
 
+        // Пользователи и заказы
+        let users = JSON.parse(localStorage.getItem('flowerShopUsers')) || [];
+        let orders = JSON.parse(localStorage.getItem('flowerShopOrders')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('flowerShopCurrentUser')) || null;
+
         // Элементы DOM
         const productsGrid = document.getElementById('products-grid-all');
         const adminModal = document.getElementById('admin-modal');
@@ -1459,22 +1727,44 @@
         const productDetailModal = document.getElementById('product-detail-modal');
         const productDetailContent = document.getElementById('product-detail-content');
         const adminBtn = document.getElementById('admin-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const ordersBtn = document.getElementById('orders-btn');
+        const authModal = document.getElementById('auth-modal');
+        const adminPasswordModal = document.getElementById('admin-password-modal');
         const closeBtn = document.querySelector('.close');
         const closeOrderBtn = document.getElementById('close-order');
         const closeDetailBtn = document.getElementById('close-detail');
+        const closeAuthBtn = document.getElementById('close-auth');
+        const closeAdminPasswordBtn = document.getElementById('close-admin-password');
         const productForm = document.getElementById('product-form');
         const designForm = document.getElementById('design-form');
         const contactsForm = document.getElementById('contacts-form');
         const telegramForm = document.getElementById('telegram-form');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const adminPasswordForm = document.getElementById('admin-password-form');
         const adminProductsList = document.getElementById('admin-products-list');
+        const adminOrdersList = document.getElementById('admin-orders-list');
         const cancelProductBtn = document.getElementById('cancel-product-btn');
         const cancelOrderBtn = document.getElementById('cancel-order');
+        const cancelLoginBtn = document.getElementById('cancel-login');
+        const cancelRegisterBtn = document.getElementById('cancel-register');
+        const cancelAdminPasswordBtn = document.getElementById('cancel-admin-password');
         const submitOrderBtn = document.getElementById('submit-order');
         const adminTabs = document.querySelectorAll('.admin-tab');
         const adminTabContents = document.querySelectorAll('.admin-tab-content');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authTabContents = document.querySelectorAll('.auth-tab-content');
         const orderForm = document.getElementById('order-form');
         const orderSuccess = document.getElementById('order-success');
         const telegramLink = document.getElementById('telegram-link');
+        const authButtons = document.getElementById('auth-buttons');
+        const userButtons = document.getElementById('user-buttons');
+        const adminButtonContainer = document.getElementById('admin-button-container');
+        const ordersSection = document.getElementById('orders');
+        const ordersList = document.getElementById('orders-list');
 
         // Элементы категорий
         const categoryTabs = document.querySelectorAll('.category-tab');
@@ -1506,6 +1796,9 @@
         let currentEditId = null;
         let currentOrderProduct = null;
         let currentMediaIndex = 0;
+
+        // Пароль для админки
+        const ADMIN_PASSWORD = "Ruuk1001";
 
         // Функция для отображения товаров по категориям
         function displayProductsByCategory() {
@@ -1681,11 +1974,21 @@
 
         // Функция для открытия модального окна заказа
         function openOrderModal(productId) {
+            // Проверяем, авторизован ли пользователь
+            if (!currentUser) {
+                alert('Для оформления заказа необходимо войти в систему');
+                authModal.style.display = 'block';
+                return;
+            }
+            
             currentOrderProduct = products.find(p => p.id === productId);
             if (currentOrderProduct) {
                 orderModal.style.display = 'block';
                 orderForm.style.display = 'block';
                 orderSuccess.style.display = 'none';
+                
+                // Заполняем имя пользователя, если он авторизован
+                document.getElementById('customer-name').value = currentUser.name;
             }
         }
 
@@ -1737,6 +2040,295 @@
                 });
             
             return true;
+        }
+
+        // Функция для создания нового заказа
+        function createOrder(orderData) {
+            const orderId = orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1;
+            
+            const newOrder = {
+                id: orderId,
+                userId: currentUser.id,
+                productId: currentOrderProduct.id,
+                productName: orderData.productName,
+                productPrice: orderData.productPrice,
+                customerName: orderData.customerName,
+                customerPhone: orderData.customerPhone,
+                customerAddress: orderData.customerAddress,
+                deliveryDate: orderData.deliveryDate,
+                deliveryTime: orderData.deliveryTime,
+                orderComment: orderData.orderComment,
+                status: 'новый',
+                createdAt: new Date().toISOString()
+            };
+            
+            orders.push(newOrder);
+            saveOrders();
+            
+            return newOrder;
+        }
+
+        // Функция для отображения заказов пользователя
+        function displayUserOrders() {
+            if (!currentUser) return;
+            
+            const userOrders = orders.filter(order => order.userId === currentUser.id);
+            
+            if (userOrders.length === 0) {
+                ordersList.innerHTML = '<p>У вас пока нет заказов</p>';
+                return;
+            }
+            
+            // Сортируем заказы по дате (новые сверху)
+            userOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            ordersList.innerHTML = '';
+            
+            userOrders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                
+                // Определяем класс статуса для стилизации
+                let statusClass = '';
+                switch(order.status) {
+                    case 'новый': statusClass = 'status-new'; break;
+                    case 'подтвержден': statusClass = 'status-confirmed'; break;
+                    case 'в обработке': statusClass = 'status-processing'; break;
+                    case 'отправлен': statusClass = 'status-shipped'; break;
+                    case 'доставлен': statusClass = 'status-delivered'; break;
+                    case 'отменен': statusClass = 'status-cancelled'; break;
+                }
+                
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>Заказ #${order.id}</h3>
+                            <div class="order-date">${new Date(order.createdAt).toLocaleDateString('ru-RU')}</div>
+                        </div>
+                        <div class="order-status ${statusClass}">${order.status}</div>
+                    </div>
+                    <div class="order-details">
+                        <div class="order-item">
+                            <span>${order.productName}</span>
+                            <span>${order.productPrice} руб.</span>
+                        </div>
+                    </div>
+                    <div class="order-total">
+                        Итого: ${order.productPrice} руб.
+                    </div>
+                `;
+                
+                ordersList.appendChild(orderCard);
+            });
+        }
+
+        // Функция для отображения всех заказов в админке
+        function displayAdminOrders() {
+            if (orders.length === 0) {
+                adminOrdersList.innerHTML = '<p>Заказов пока нет</p>';
+                return;
+            }
+            
+            // Сортируем заказы по дате (новые сверху)
+            const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            adminOrdersList.innerHTML = '';
+            
+            sortedOrders.forEach(order => {
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-card';
+                
+                // Определяем класс статуса для стилизации
+                let statusClass = '';
+                switch(order.status) {
+                    case 'новый': statusClass = 'status-new'; break;
+                    case 'подтвержден': statusClass = 'status-confirmed'; break;
+                    case 'в обработке': statusClass = 'status-processing'; break;
+                    case 'отправлен': statusClass = 'status-shipped'; break;
+                    case 'доставлен': statusClass = 'status-delivered'; break;
+                    case 'отменен': statusClass = 'status-cancelled'; break;
+                }
+                
+                // Находим пользователя по ID
+                const user = users.find(u => u.id === order.userId);
+                const userName = user ? user.name : 'Неизвестный пользователь';
+                const userEmail = user ? user.email : 'Неизвестный email';
+                
+                orderItem.innerHTML = `
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>Заказ #${order.id} от ${userName}</h3>
+                            <div class="order-date">${new Date(order.createdAt).toLocaleDateString('ru-RU')}</div>
+                            <div class="order-email">${userEmail}</div>
+                        </div>
+                        <div class="order-status ${statusClass}">
+                            <select class="status-select" data-order-id="${order.id}">
+                                <option value="новый" ${order.status === 'новый' ? 'selected' : ''}>Новый</option>
+                                <option value="подтвержден" ${order.status === 'подтвержден' ? 'selected' : ''}>Подтвержден</option>
+                                <option value="в обработке" ${order.status === 'в обработке' ? 'selected' : ''}>В обработке</option>
+                                <option value="отправлен" ${order.status === 'отправлен' ? 'selected' : ''}>Отправлен</option>
+                                <option value="доставлен" ${order.status === 'доставлен' ? 'selected' : ''}>Доставлен</option>
+                                <option value="отменен" ${order.status === 'отменен' ? 'selected' : ''}>Отменен</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="order-details">
+                        <div class="order-item">
+                            <span>Товар:</span>
+                            <span>${order.productName}</span>
+                        </div>
+                        <div class="order-item">
+                            <span>Цена:</span>
+                            <span>${order.productPrice} руб.</span>
+                        </div>
+                        <div class="order-item">
+                            <span>Телефон:</span>
+                            <span>${order.customerPhone}</span>
+                        </div>
+                        ${order.customerAddress ? `
+                        <div class="order-item">
+                            <span>Адрес:</span>
+                            <span>${order.customerAddress}</span>
+                        </div>
+                        ` : ''}
+                        ${order.deliveryDate ? `
+                        <div class="order-item">
+                            <span>Дата доставки:</span>
+                            <span>${order.deliveryDate}</span>
+                        </div>
+                        ` : ''}
+                        ${order.deliveryTime ? `
+                        <div class="order-item">
+                            <span>Время доставки:</span>
+                            <span>${order.deliveryTime}</span>
+                        </div>
+                        ` : ''}
+                        ${order.orderComment ? `
+                        <div class="order-item">
+                            <span>Комментарий:</span>
+                            <span>${order.orderComment}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="order-total">
+                        Итого: ${order.productPrice} руб.
+                    </div>
+                `;
+                
+                adminOrdersList.appendChild(orderItem);
+            });
+            
+            // Добавляем обработчики для изменения статуса заказа
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const orderId = parseInt(e.target.getAttribute('data-order-id'));
+                    const newStatus = e.target.value;
+                    updateOrderStatus(orderId, newStatus);
+                });
+            });
+        }
+
+        // Функция для обновления статуса заказа
+        function updateOrderStatus(orderId, newStatus) {
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                saveOrders();
+                
+                // Если пользователь смотрит свои заказы, обновляем их отображение
+                if (currentUser && ordersSection.style.display !== 'none') {
+                    displayUserOrders();
+                }
+                
+                alert(`Статус заказа #${orderId} изменен на "${newStatus}"`);
+            }
+        }
+
+        // Функция для регистрации нового пользователя
+        function registerUser(name, email, password) {
+            // Проверяем, нет ли уже пользователя с таким email
+            if (users.find(u => u.email === email)) {
+                alert('Пользователь с таким email уже зарегистрирован');
+                return false;
+            }
+            
+            const userId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+            
+            const newUser = {
+                id: userId,
+                name: name,
+                email: email,
+                password: password,
+                role: 'client'
+            };
+            
+            users.push(newUser);
+            saveUsers();
+            
+            // Автоматически входим под новым пользователем
+            currentUser = newUser;
+            saveCurrentUser();
+            
+            updateAuthUI();
+            
+            alert('Регистрация прошла успешно!');
+            return true;
+        }
+
+        // Функция для входа пользователя
+        function loginUser(email, password) {
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                saveCurrentUser();
+                updateAuthUI();
+                
+                alert('Вход выполнен успешно!');
+                return true;
+            } else {
+                alert('Неверный email или пароль');
+                return false;
+            }
+        }
+
+        // Функция для выхода пользователя
+        function logoutUser() {
+            currentUser = null;
+            saveCurrentUser();
+            updateAuthUI();
+            
+            // Скрываем раздел "Мои заказы", если он открыт
+            ordersSection.style.display = 'none';
+            
+            alert('Вы вышли из системы');
+        }
+
+        // Функция для обновления интерфейса в зависимости от статуса авторизации
+        function updateAuthUI() {
+            if (currentUser) {
+                // Пользователь авторизован
+                authButtons.style.display = 'none';
+                userButtons.style.display = 'flex';
+                
+                // Проверяем, является ли пользователь администратором
+                if (currentUser.role === 'admin') {
+                    adminButtonContainer.style.display = 'block';
+                } else {
+                    adminButtonContainer.style.display = 'none';
+                }
+            } else {
+                // Пользователь не авторизован
+                authButtons.style.display = 'flex';
+                userButtons.style.display = 'none';
+                adminButtonContainer.style.display = 'none';
+            }
+        }
+
+        // Функция для проверки пароля администратора
+        function checkAdminPassword(password) {
+            return password === ADMIN_PASSWORD;
         }
 
         // Функция для парсинга данных с Flowwow
@@ -2282,6 +2874,21 @@
             localStorage.setItem('flowerShopImportUrls', JSON.stringify(importUrls));
         }
 
+        // Функция для сохранения пользователей
+        function saveUsers() {
+            localStorage.setItem('flowerShopUsers', JSON.stringify(users));
+        }
+
+        // Функция для сохранения заказов
+        function saveOrders() {
+            localStorage.setItem('flowerShopOrders', JSON.stringify(orders));
+        }
+
+        // Функция для сохранения текущего пользователя
+        function saveCurrentUser() {
+            localStorage.setItem('flowerShopCurrentUser', JSON.stringify(currentUser));
+        }
+
         // Функция для сброса формы товаров
         function resetProductForm() {
             productForm.reset();
@@ -2379,6 +2986,57 @@
             alert('Настройки Telegram сохранены!');
         });
 
+        // Обработчик отправки формы входа
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (loginUser(email, password)) {
+                authModal.style.display = 'none';
+                loginForm.reset();
+            }
+        });
+
+        // Обработчик отправки формы регистрации
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                alert('Пароли не совпадают');
+                return;
+            }
+            
+            if (registerUser(name, email, password)) {
+                authModal.style.display = 'none';
+                registerForm.reset();
+            }
+        });
+
+        // Обработчик отправки формы пароля администратора
+        adminPasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('admin-password').value;
+            
+            if (checkAdminPassword(password)) {
+                adminPasswordModal.style.display = 'none';
+                adminModal.style.display = 'block';
+                displayAdminProducts();
+                displayAdminOrders();
+                displayImportUrls();
+                adminPasswordForm.reset();
+            } else {
+                alert('Неверный пароль администратора');
+            }
+        });
+
         // Обработчик отправки заказа
         submitOrderBtn.addEventListener('click', () => {
             const customerName = document.getElementById('customer-name').value;
@@ -2403,6 +3061,9 @@
                 deliveryTime,
                 orderComment
             };
+            
+            // Создаем заказ
+            createOrder(orderData);
             
             // Отправляем заказ в Telegram
             const success = sendOrderToTelegram(orderData);
@@ -2446,9 +3107,43 @@
 
         // Обработчики событий для модальных окон
         adminBtn.addEventListener('click', () => {
-            adminModal.style.display = 'block';
-            displayAdminProducts();
-            displayImportUrls();
+            adminPasswordModal.style.display = 'block';
+        });
+
+        loginBtn.addEventListener('click', () => {
+            authModal.style.display = 'block';
+            // Активируем вкладку входа
+            authTabs.forEach(t => t.classList.remove('active'));
+            authTabContents.forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-tab="login"]').classList.add('active');
+            document.getElementById('login-tab').classList.add('active');
+        });
+
+        registerBtn.addEventListener('click', () => {
+            authModal.style.display = 'block';
+            // Активируем вкладку регистрации
+            authTabs.forEach(t => t.classList.remove('active'));
+            authTabContents.forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-tab="register"]').classList.add('active');
+            document.getElementById('register-tab').classList.add('active');
+        });
+
+        logoutBtn.addEventListener('click', logoutUser);
+
+        ordersBtn.addEventListener('click', () => {
+            // Показываем раздел "Мои заказы"
+            ordersSection.style.display = 'block';
+            // Скрываем другие разделы
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('products').style.display = 'none';
+            document.getElementById('about').style.display = 'none';
+            document.getElementById('contact').style.display = 'none';
+            
+            // Отображаем заказы пользователя
+            displayUserOrders();
+            
+            // Прокручиваем к началу страницы
+            window.scrollTo(0, 0);
         });
 
         closeBtn.addEventListener('click', () => {
@@ -2464,12 +3159,32 @@
             productDetailModal.style.display = 'none';
         });
 
+        closeAuthBtn.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+
+        closeAdminPasswordBtn.addEventListener('click', () => {
+            adminPasswordModal.style.display = 'none';
+        });
+
         cancelProductBtn.addEventListener('click', () => {
             resetProductForm();
         });
 
         cancelOrderBtn.addEventListener('click', () => {
             orderModal.style.display = 'none';
+        });
+
+        cancelLoginBtn.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+
+        cancelRegisterBtn.addEventListener('click', () => {
+            authModal.style.display = 'none';
+        });
+
+        cancelAdminPasswordBtn.addEventListener('click', () => {
+            adminPasswordModal.style.display = 'none';
         });
 
         // Закрытие модальных окон при клике вне их
@@ -2484,6 +3199,12 @@
             if (e.target === productDetailModal) {
                 productDetailModal.style.display = 'none';
             }
+            if (e.target === authModal) {
+                authModal.style.display = 'none';
+            }
+            if (e.target === adminPasswordModal) {
+                adminPasswordModal.style.display = 'none';
+            }
         });
 
         // Переключение вкладок администратора
@@ -2494,6 +3215,21 @@
                 // Убираем активный класс у всех вкладок и контента
                 adminTabs.forEach(t => t.classList.remove('active'));
                 adminTabContents.forEach(c => c.classList.remove('active'));
+                
+                // Добавляем активный класс текущей вкладке и контенту
+                tab.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Переключение вкладок аутентификации
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Убираем активный класс у всех вкладок и контента
+                authTabs.forEach(t => t.classList.remove('active'));
+                authTabContents.forEach(c => c.classList.remove('active'));
                 
                 // Добавляем активный класс текущей вкладке и контенту
                 tab.classList.add('active');
@@ -2517,6 +3253,13 @@
                 const targetId = this.getAttribute('href');
                 if (targetId === '#') return;
                 
+                // Показываем все разделы при переходе по навигации
+                document.getElementById('home').style.display = 'block';
+                document.getElementById('products').style.display = 'block';
+                document.getElementById('about').style.display = 'block';
+                document.getElementById('contact').style.display = 'block';
+                ordersSection.style.display = 'none';
+                
                 const targetElement = document.querySelector(targetId);
                 if (targetElement) {
                     window.scrollTo({
@@ -2536,9 +3279,22 @@
             displayProductsByCategory();
             applySiteSettings();
             displayImportUrls();
+            updateAuthUI();
             
             // Устанавливаем ссылку на Telegram
             telegramLink.href = 'https://t.me/' + (siteSettings.telegramChatId ? siteSettings.telegramChatId : '');
+            
+            // Создаем тестового администратора, если его нет
+            if (!users.find(u => u.role === 'admin')) {
+                users.push({
+                    id: 1,
+                    name: 'Администратор',
+                    email: 'admin@flora.ru',
+                    password: ADMIN_PASSWORD,
+                    role: 'admin'
+                });
+                saveUsers();
+            }
         });
     </script>
 </body>
