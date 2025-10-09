@@ -956,6 +956,43 @@
             margin-bottom: 20px;
         }
 
+        /* Выбор способа заказа */
+        .order-method {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .order-method-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .order-method-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .order-with-account {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .order-without-account {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .order-method-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .hero h1 {
@@ -1020,6 +1057,10 @@
             
             .order-status {
                 margin-top: 10px;
+            }
+            
+            .order-method-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -1175,6 +1216,29 @@
         </div>
     </div>
 
+    <!-- Модальное окно выбора способа заказа -->
+    <div id="order-method-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-order-method">&times;</span>
+            <div class="order-method">
+                <h2>Как оформить заказ?</h2>
+                <p>Выберите способ оформления заказа:</p>
+                <div class="order-method-buttons">
+                    <button id="order-with-account" class="order-method-btn order-with-account">
+                        Войти/Зарегистрироваться
+                    </button>
+                    <button id="order-without-account" class="order-method-btn order-without-account">
+                        Оформить без регистрации
+                    </button>
+                </div>
+                <div class="delivery-notice" style="margin-top: 20px;">
+                    <h4>📦 Информация о доставке</h4>
+                    <p>Стоимость и условия доставки уточняются при подтверждении заказа. Наш менеджер свяжется с вами для уточнения деталей доставки после получения заказа.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Модальное окно заказа -->
     <div id="order-modal" class="modal">
         <div class="modal-content">
@@ -1220,7 +1284,7 @@
                     <textarea id="order-comment" placeholder="Укажите дополнительные пожелания по доставке или товару"></textarea>
                 </div>
                 <div class="form-buttons">
-                    <button type="button" id="submit-order" class="save-btn">Отправить заказ в Telegram</button>
+                    <button type="button" id="submit-order" class="save-btn">Отправить заказ</button>
                     <button type="button" class="cancel-btn" id="cancel-order">Отмена</button>
                 </div>
             </div>
@@ -1724,6 +1788,7 @@
         const productsGrid = document.getElementById('products-grid-all');
         const adminModal = document.getElementById('admin-modal');
         const orderModal = document.getElementById('order-modal');
+        const orderMethodModal = document.getElementById('order-method-modal');
         const productDetailModal = document.getElementById('product-detail-modal');
         const productDetailContent = document.getElementById('product-detail-content');
         const adminBtn = document.getElementById('admin-btn');
@@ -1735,6 +1800,7 @@
         const adminPasswordModal = document.getElementById('admin-password-modal');
         const closeBtn = document.querySelector('.close');
         const closeOrderBtn = document.getElementById('close-order');
+        const closeOrderMethodBtn = document.getElementById('close-order-method');
         const closeDetailBtn = document.getElementById('close-detail');
         const closeAuthBtn = document.getElementById('close-auth');
         const closeAdminPasswordBtn = document.getElementById('close-admin-password');
@@ -1753,6 +1819,8 @@
         const cancelRegisterBtn = document.getElementById('cancel-register');
         const cancelAdminPasswordBtn = document.getElementById('cancel-admin-password');
         const submitOrderBtn = document.getElementById('submit-order');
+        const orderWithAccountBtn = document.getElementById('order-with-account');
+        const orderWithoutAccountBtn = document.getElementById('order-without-account');
         const adminTabs = document.querySelectorAll('.admin-tab');
         const adminTabContents = document.querySelectorAll('.admin-tab-content');
         const authTabs = document.querySelectorAll('.auth-tab');
@@ -1796,6 +1864,7 @@
         let currentEditId = null;
         let currentOrderProduct = null;
         let currentMediaIndex = 0;
+        let orderWithAccount = false;
 
         // Пароль для админки
         const ADMIN_PASSWORD = "Ruuk1001";
@@ -1853,7 +1922,7 @@
             orderBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const id = parseInt(e.target.getAttribute('data-id'));
-                openOrderModal(id);
+                openOrderMethodModal(id);
             });
             
             return productCard;
@@ -1945,7 +2014,7 @@
                 // Добавляем обработчик для кнопки заказа
                 document.getElementById('detail-order-btn').addEventListener('click', () => {
                     productDetailModal.style.display = 'none';
-                    openOrderModal(productId);
+                    openOrderMethodModal(productId);
                 });
                 
                 productDetailModal.style.display = 'block';
@@ -1972,23 +2041,27 @@
             });
         }
 
-        // Функция для открытия модального окна заказа
-        function openOrderModal(productId) {
-            // Проверяем, авторизован ли пользователь
-            if (!currentUser) {
-                alert('Для оформления заказа необходимо войти в систему');
-                authModal.style.display = 'block';
-                return;
-            }
-            
+        // Функция для открытия модального окна выбора способа заказа
+        function openOrderMethodModal(productId) {
             currentOrderProduct = products.find(p => p.id === productId);
+            if (currentOrderProduct) {
+                orderMethodModal.style.display = 'block';
+            }
+        }
+
+        // Функция для открытия модального окна заказа
+        function openOrderModal() {
             if (currentOrderProduct) {
                 orderModal.style.display = 'block';
                 orderForm.style.display = 'block';
                 orderSuccess.style.display = 'none';
                 
                 // Заполняем имя пользователя, если он авторизован
-                document.getElementById('customer-name').value = currentUser.name;
+                if (currentUser && orderWithAccount) {
+                    document.getElementById('customer-name').value = currentUser.name;
+                } else {
+                    document.getElementById('customer-name').value = '';
+                }
             }
         }
 
@@ -2048,7 +2121,7 @@
             
             const newOrder = {
                 id: orderId,
-                userId: currentUser.id,
+                userId: orderWithAccount && currentUser ? currentUser.id : null,
                 productId: currentOrderProduct.id,
                 productName: orderData.productName,
                 productPrice: orderData.productPrice,
@@ -2151,8 +2224,8 @@
                 
                 // Находим пользователя по ID
                 const user = users.find(u => u.id === order.userId);
-                const userName = user ? user.name : 'Неизвестный пользователь';
-                const userEmail = user ? user.email : 'Неизвестный email';
+                const userName = user ? user.name : 'Гость (без регистрации)';
+                const userEmail = user ? user.email : 'Не указан';
                 
                 orderItem.innerHTML = `
                     <div class="order-header">
@@ -2996,6 +3069,11 @@
             if (loginUser(email, password)) {
                 authModal.style.display = 'none';
                 loginForm.reset();
+                
+                // Если пользователь выбрал заказ с аккаунтом, открываем форму заказа
+                if (orderWithAccount) {
+                    openOrderModal();
+                }
             }
         });
 
@@ -3016,6 +3094,11 @@
             if (registerUser(name, email, password)) {
                 authModal.style.display = 'none';
                 registerForm.reset();
+                
+                // Если пользователь выбрал заказ с аккаунтом, открываем форму заказа
+                if (orderWithAccount) {
+                    openOrderModal();
+                }
             }
         });
 
@@ -3080,7 +3163,33 @@
                 document.getElementById('delivery-date').value = '';
                 document.getElementById('delivery-time').value = '';
                 document.getElementById('order-comment').value = '';
+                
+                // Если пользователь зарегистрирован, показываем сообщение о возможности отслеживания
+                if (orderWithAccount && currentUser) {
+                    document.querySelector('#order-success p').textContent = 
+                        'Мы свяжемся с вами в ближайшее время для подтверждения заказа и уточнения деталей доставки. Вы можете отслеживать статус заказа в разделе "Мои заказы".';
+                }
             }
+        });
+
+        // Обработчики для выбора способа заказа
+        orderWithAccountBtn.addEventListener('click', () => {
+            orderWithAccount = true;
+            orderMethodModal.style.display = 'none';
+            
+            if (currentUser) {
+                // Если пользователь уже авторизован, открываем форму заказа
+                openOrderModal();
+            } else {
+                // Если не авторизован, открываем модальное окно авторизации
+                authModal.style.display = 'block';
+            }
+        });
+
+        orderWithoutAccountBtn.addEventListener('click', () => {
+            orderWithAccount = false;
+            orderMethodModal.style.display = 'none';
+            openOrderModal();
         });
 
         // Обработчики для импорта
@@ -3155,6 +3264,10 @@
             orderModal.style.display = 'none';
         });
 
+        closeOrderMethodBtn.addEventListener('click', () => {
+            orderMethodModal.style.display = 'none';
+        });
+
         closeDetailBtn.addEventListener('click', () => {
             productDetailModal.style.display = 'none';
         });
@@ -3195,6 +3308,9 @@
             }
             if (e.target === orderModal) {
                 orderModal.style.display = 'none';
+            }
+            if (e.target === orderMethodModal) {
+                orderMethodModal.style.display = 'none';
             }
             if (e.target === productDetailModal) {
                 productDetailModal.style.display = 'none';
