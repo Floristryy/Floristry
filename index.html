@@ -993,6 +993,98 @@
             transform: translateY(-2px);
         }
 
+        /* Стили для загрузки изображений */
+        .image-upload-container {
+            margin: 15px 0;
+        }
+        
+        .image-upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .image-upload-box:hover {
+            border-color: var(--primary-color);
+            background-color: #f9f9f9;
+        }
+        
+        .image-upload-box.dragover {
+            border-color: var(--primary-color);
+            background-color: #f0f8ff;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .uploaded-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .uploaded-image-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .uploaded-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* URL поля для обратной совместимости */
+        .url-fields {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .hero h1 {
@@ -1425,14 +1517,47 @@
                             <label for="product-price">Цена (руб.):</label>
                             <input type="number" id="product-price" min="0" step="0.01" required>
                         </div>
+                        
+                        <!-- ОСНОВНОЕ ИЗОБРАЖЕНИЕ - ЗАГРУЗКА С КОМПЬЮТЕРА -->
                         <div class="form-group">
-                            <label for="product-image">Основное изображение (URL):</label>
-                            <input type="url" id="product-image" required>
+                            <label>Основное изображение:</label>
+                            <div class="image-upload-container">
+                                <div class="image-upload-box" id="main-image-upload">
+                                    <div class="upload-icon">📷</div>
+                                    <p>Нажмите для загрузки изображения или перетащите файл сюда</p>
+                                    <p class="upload-info">Рекомендуемый размер: 500x500px. Максимальный размер: 2MB</p>
+                                    <img id="main-image-preview" class="image-preview" alt="Превью">
+                                </div>
+                                <input type="file" id="product-image-file" class="file-input" accept="image/*">
+                                <input type="hidden" id="product-image-base64">
+                                <button type="button" id="remove-main-image" style="display: none; margin-top: 10px;">Удалить изображение</button>
+                            </div>
+                            <!-- Поле URL для обратной совместимости -->
+                            <div class="url-fields">
+                                <label for="product-image-url">Или укажите URL изображения:</label>
+                                <input type="url" id="product-image-url" placeholder="https://example.com/image.jpg">
+                            </div>
                         </div>
+                        
+                        <!-- ДОПОЛНИТЕЛЬНЫЕ ИЗОБРАЖЕНИЯ - ЗАГРУЗКА С КОМПЬЮТЕРА -->
                         <div class="form-group">
-                            <label for="product-images">Дополнительные изображения (URL, через запятую):</label>
-                            <input type="text" id="product-images" placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg">
+                            <label>Дополнительные изображения:</label>
+                            <div class="image-upload-container">
+                                <div class="image-upload-box" id="additional-images-upload">
+                                    <div class="upload-icon">🖼️</div>
+                                    <p>Нажмите для загрузки дополнительных изображений</p>
+                                    <p class="upload-info">Можно выбрать несколько файлов. Максимальный размер каждого: 2MB</p>
+                                </div>
+                                <input type="file" id="additional-images-file" class="file-input" accept="image/*" multiple>
+                                <div class="uploaded-images" id="additional-images-preview"></div>
+                            </div>
+                            <!-- Поле URL для обратной совместимости -->
+                            <div class="url-fields">
+                                <label for="product-images-url">Или укажите URL изображений (через запятую):</label>
+                                <input type="text" id="product-images-url" placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg">
+                            </div>
                         </div>
+                        
                         <div class="form-group">
                             <label for="product-video">Видео (URL, опционально):</label>
                             <input type="url" id="product-video" placeholder="https://example.com/video.mp4">
@@ -1908,6 +2033,25 @@
         const flowwowResults = document.getElementById('flowwow-results');
         const flowwowResultsList = document.getElementById('flowwow-results-list');
 
+        // ==================== ЭЛЕМЕНТЫ ДЛЯ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ ====================
+        
+        // Элементы для загрузки изображений
+        const mainImageUpload = document.getElementById('main-image-upload');
+        const mainImageFileInput = document.getElementById('product-image-file');
+        const mainImagePreview = document.getElementById('main-image-preview');
+        const mainImageBase64Input = document.getElementById('product-image-base64');
+        const removeMainImageBtn = document.getElementById('remove-main-image');
+        const productImageUrlInput = document.getElementById('product-image-url');
+        
+        const additionalImagesUpload = document.getElementById('additional-images-upload');
+        const additionalImagesFileInput = document.getElementById('additional-images-file');
+        const additionalImagesPreview = document.getElementById('additional-images-preview');
+        const productImagesUrlInput = document.getElementById('product-images-url');
+        
+        // Переменные для хранения загруженных изображений
+        let mainImageBase64 = '';
+        let additionalImagesBase64 = [];
+
         // Переменные для управления состоянием
         let editMode = false;
         let currentEditId = null;
@@ -1917,6 +2061,204 @@
 
         // Пароль для админки
         const ADMIN_PASSWORD = "Ruuk1001";
+
+        // ==================== ФУНКЦИИ ДЛЯ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ ====================
+        
+        // Функция для конвертации файла в Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        // Функция для проверки размера файла (максимум 2MB)
+        function checkFileSize(file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB в байтах
+            if (file.size > maxSize) {
+                alert('Файл слишком большой! Максимальный размер: 2MB');
+                return false;
+            }
+            return true;
+        }
+        
+        // Обработчики для основного изображения
+        mainImageUpload.addEventListener('click', () => {
+            mainImageFileInput.click();
+        });
+        
+        mainImageUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            mainImageUpload.classList.add('dragover');
+        });
+        
+        mainImageUpload.addEventListener('dragleave', () => {
+            mainImageUpload.classList.remove('dragover');
+        });
+        
+        mainImageUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            mainImageUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleMainImageFile(files[0]);
+            }
+        });
+        
+        mainImageFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleMainImageFile(e.target.files[0]);
+            }
+        });
+        
+        // Обработчики для дополнительных изображений
+        additionalImagesUpload.addEventListener('click', () => {
+            additionalImagesFileInput.click();
+        });
+        
+        additionalImagesUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            additionalImagesUpload.classList.add('dragover');
+        });
+        
+        additionalImagesUpload.addEventListener('dragleave', () => {
+            additionalImagesUpload.classList.remove('dragover');
+        });
+        
+        additionalImagesUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            additionalImagesUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleAdditionalImagesFiles(files);
+            }
+        });
+        
+        additionalImagesFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleAdditionalImagesFiles(e.target.files);
+            }
+        });
+        
+        // Функция для обработки основного изображения
+        async function handleMainImageFile(file) {
+            if (!checkFileSize(file)) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Пожалуйста, выберите файл изображения');
+                return;
+            }
+            
+            try {
+                const base64 = await fileToBase64(file);
+                mainImageBase64 = base64;
+                mainImageBase64Input.value = base64;
+                
+                // Показываем превью
+                mainImagePreview.src = base64;
+                mainImagePreview.style.display = 'block';
+                removeMainImageBtn.style.display = 'block';
+                
+                // Обновляем текст загрузочного блока
+                mainImageUpload.querySelector('p').textContent = 'Изображение загружено';
+                
+                // Очищаем поле URL
+                productImageUrlInput.value = '';
+                
+            } catch (error) {
+                console.error('Ошибка загрузки изображения:', error);
+                alert('Ошибка загрузки изображения');
+            }
+        }
+        
+        // Функция для обработки дополнительных изображений
+        async function handleAdditionalImagesFiles(files) {
+            const imageFiles = Array.from(files).filter(file => 
+                file.type.startsWith('image/') && checkFileSize(file)
+            );
+            
+            for (const file of imageFiles) {
+                try {
+                    const base64 = await fileToBase64(file);
+                    additionalImagesBase64.push(base64);
+                    addAdditionalImagePreview(base64);
+                } catch (error) {
+                    console.error('Ошибка загрузки изображения:', error);
+                }
+            }
+            
+            // Обновляем текст если есть изображения
+            if (additionalImagesBase64.length > 0) {
+                additionalImagesUpload.querySelector('p').textContent = 
+                    `Загружено ${additionalImagesBase64.length} изображений`;
+                    
+                // Очищаем поле URL
+                productImagesUrlInput.value = '';
+            }
+        }
+        
+        // Функция для добавления превью дополнительного изображения
+        function addAdditionalImagePreview(base64) {
+            const imageItem = document.createElement('div');
+            imageItem.className = 'uploaded-image-item';
+            
+            imageItem.innerHTML = `
+                <img src="${base64}" class="uploaded-image" alt="Дополнительное изображение">
+                <button type="button" class="remove-image" data-base64="${base64}">×</button>
+            `;
+            
+            additionalImagesPreview.appendChild(imageItem);
+            
+            // Обработчик для удаления изображения
+            imageItem.querySelector('.remove-image').addEventListener('click', function() {
+                const base64ToRemove = this.getAttribute('data-base64');
+                additionalImagesBase64 = additionalImagesBase64.filter(img => img !== base64ToRemove);
+                imageItem.remove();
+                
+                // Обновляем текст
+                if (additionalImagesBase64.length === 0) {
+                    additionalImagesUpload.querySelector('p').textContent = 
+                        'Нажмите для загрузки дополнительных изображений';
+                } else {
+                    additionalImagesUpload.querySelector('p').textContent = 
+                        `Загружено ${additionalImagesBase64.length} изображений`;
+                }
+            });
+        }
+        
+        // Обработчик для удаления основного изображения
+        removeMainImageBtn.addEventListener('click', () => {
+            mainImageBase64 = '';
+            mainImageBase64Input.value = '';
+            mainImagePreview.style.display = 'none';
+            removeMainImageBtn.style.display = 'none';
+            mainImageFileInput.value = '';
+            mainImageUpload.querySelector('p').textContent = 
+                'Нажмите для загрузки изображения или перетащите файл сюда';
+        });
+
+        // Функция для сброса загрузки изображений
+        function resetImageUploads() {
+            mainImageBase64 = '';
+            additionalImagesBase64 = [];
+            mainImagePreview.style.display = 'none';
+            removeMainImageBtn.style.display = 'none';
+            mainImageFileInput.value = '';
+            additionalImagesFileInput.value = '';
+            additionalImagesPreview.innerHTML = '';
+            productImageUrlInput.value = '';
+            productImagesUrlInput.value = '';
+            
+            // Восстанавливаем исходные тексты
+            mainImageUpload.querySelector('p').textContent = 
+                'Нажмите для загрузки изображения или перетащите файл сюда';
+            additionalImagesUpload.querySelector('p').textContent = 
+                'Нажмите для загрузки дополнительных изображений';
+        }
+
+        // ==================== ОСНОВНЫЕ ФУНКЦИИ САЙТА ====================
 
         // Функция для отображения товаров по категориям
         function displayProductsByCategory() {
@@ -2555,8 +2897,38 @@
             document.getElementById('product-category').value = productData.category;
             document.getElementById('product-name').value = productData.name;
             document.getElementById('product-price').value = productData.price;
-            document.getElementById('product-image').value = productData.image;
-            document.getElementById('product-images').value = productData.images.join(', ');
+            
+            // Обрабатываем основное изображение
+            if (productData.image.startsWith('data:image')) {
+                // Это Base64 изображение
+                mainImageBase64 = productData.image;
+                mainImagePreview.src = productData.image;
+                mainImagePreview.style.display = 'block';
+                removeMainImageBtn.style.display = 'block';
+                mainImageUpload.querySelector('p').textContent = 'Изображение загружено';
+                productImageUrlInput.value = '';
+            } else {
+                // Это URL
+                productImageUrlInput.value = productData.image;
+                resetImageUploads();
+            }
+            
+            // Обрабатываем дополнительные изображения
+            const base64Images = productData.images.filter(img => img.startsWith('data:image'));
+            const urlImages = productData.images.filter(img => !img.startsWith('data:image'));
+            
+            if (base64Images.length > 0) {
+                additionalImagesBase64 = base64Images;
+                additionalImagesBase64.forEach(base64 => {
+                    addAdditionalImagePreview(base64);
+                });
+                additionalImagesUpload.querySelector('p').textContent = `Загружено ${base64Images.length} изображений`;
+                productImagesUrlInput.value = '';
+            } else if (urlImages.length > 0) {
+                productImagesUrlInput.value = urlImages.join(', ');
+                resetImageUploads();
+            }
+            
             document.getElementById('product-video').value = productData.video;
             document.getElementById('product-composition').value = productData.composition;
             document.getElementById('product-size').value = productData.size;
@@ -2897,8 +3269,38 @@
                 document.getElementById('product-category').value = product.category;
                 document.getElementById('product-name').value = product.name;
                 document.getElementById('product-price').value = product.price;
-                document.getElementById('product-image').value = product.image;
-                document.getElementById('product-images').value = product.images.join(', ');
+                
+                // Обрабатываем основное изображение
+                if (product.image.startsWith('data:image')) {
+                    // Это Base64 изображение
+                    mainImageBase64 = product.image;
+                    mainImagePreview.src = product.image;
+                    mainImagePreview.style.display = 'block';
+                    removeMainImageBtn.style.display = 'block';
+                    mainImageUpload.querySelector('p').textContent = 'Изображение загружено';
+                    productImageUrlInput.value = '';
+                } else {
+                    // Это URL
+                    productImageUrlInput.value = product.image;
+                    resetImageUploads();
+                }
+                
+                // Обрабатываем дополнительные изображения
+                const base64Images = product.images.filter(img => img.startsWith('data:image'));
+                const urlImages = product.images.filter(img => !img.startsWith('data:image'));
+                
+                additionalImagesBase64 = base64Images;
+                additionalImagesBase64.forEach(base64 => {
+                    addAdditionalImagePreview(base64);
+                });
+                
+                if (base64Images.length > 0) {
+                    additionalImagesUpload.querySelector('p').textContent = `Загружено ${base64Images.length} изображений`;
+                    productImagesUrlInput.value = '';
+                } else if (urlImages.length > 0) {
+                    productImagesUrlInput.value = urlImages.join(', ');
+                }
+                
                 document.getElementById('product-video').value = product.video;
                 document.getElementById('product-composition').value = product.composition;
                 document.getElementById('product-size').value = product.size;
@@ -2942,6 +3344,7 @@
             document.getElementById('product-form').reset();
             document.getElementById('edit-id').value = '';
             document.getElementById('form-title').textContent = 'Добавить новый товар';
+            resetImageUploads();
         }
 
         // Функция для сохранения данных в localStorage
@@ -3080,22 +3483,56 @@
             productForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                const productData = {
-                    category: document.getElementById('product-category').value,
-                    name: document.getElementById('product-name').value,
-                    price: parseFloat(document.getElementById('product-price').value),
-                    image: document.getElementById('product-image').value,
-                    images: document.getElementById('product-images').value.split(',').map(url => url.trim()).filter(url => url),
-                    video: document.getElementById('product-video').value,
-                    composition: document.getElementById('product-composition').value,
-                    size: document.getElementById('product-size').value,
-                    description: document.getElementById('product-description').value
+                // Получаем данные из формы с учетом загруженных изображений
+                const category = document.getElementById('product-category').value;
+                const name = document.getElementById('product-name').value;
+                const price = parseFloat(document.getElementById('product-price').value);
+                
+                // Определяем основное изображение (приоритет у загруженного файла)
+                let image = '';
+                if (mainImageBase64) {
+                    image = mainImageBase64;
+                } else if (productImageUrlInput.value) {
+                    image = productImageUrlInput.value;
+                } else {
+                    alert('Пожалуйста, загрузите основное изображение или укажите URL');
+                    return;
+                }
+                
+                // Определяем дополнительные изображения
+                let images = [];
+                if (additionalImagesBase64.length > 0) {
+                    images = additionalImagesBase64;
+                } else if (productImagesUrlInput.value) {
+                    images = productImagesUrlInput.value.split(',').map(url => url.trim()).filter(url => url);
+                }
+                
+                // Если нет дополнительных изображений, используем основное
+                if (images.length === 0) {
+                    images = [image];
+                }
+                
+                const video = document.getElementById('product-video').value;
+                const composition = document.getElementById('product-composition').value;
+                const size = document.getElementById('product-size').value;
+                const description = document.getElementById('product-description').value;
+                
+                const product = {
+                    category,
+                    name,
+                    price,
+                    image,
+                    images,
+                    video,
+                    composition,
+                    size,
+                    description
                 };
                 
                 if (editMode && currentEditId) {
-                    updateProduct(currentEditId, productData);
+                    updateProduct(currentEditId, product);
                 } else {
-                    addProduct(productData);
+                    addProduct(product);
                 }
             });
             
@@ -3259,117 +3696,4 @@
                 
                 // Показываем сообщение об успехе
                 orderForm.style.display = 'none';
-                orderSuccess.style.display = 'block';
-                
-                // Очищаем форму
-                document.getElementById('customer-name').value = '';
-                document.getElementById('customer-phone').value = '';
-                document.getElementById('customer-address').value = '';
-                document.getElementById('delivery-date').value = '';
-                document.getElementById('delivery-time').value = '';
-                document.getElementById('order-comment').value = '';
-                
-                // Изменяем сообщение в зависимости от успеха отправки в Telegram
-                if (success) {
-                    document.querySelector('#order-success h3').textContent = 'Заказ успешно отправлен!';
-                    document.querySelector('#order-success p').textContent = 'Мы свяжемся с вами в ближайшее время для подтверждения заказа и уточнения деталей доставки.';
-                } else {
-                    document.querySelector('#order-success h3').textContent = 'Заказ принят!';
-                    document.querySelector('#order-success p').textContent = 'Мы сохранили ваш заказ, но произошла ошибка при отправке уведомления. Пожалуйста, свяжитесь с нами по телефону для подтверждения.';
-                }
-                
-                // Если пользователь зарегистрирован, добавляем информацию о возможности отслеживания
-                if (orderWithAccount && currentUser) {
-                    document.querySelector('#order-success p').textContent += ' Вы можете отслеживать статус заказа в разделе "Мои заказы".';
-                }
-            });
-            
-            // Обработчики для выбора способа заказа
-            orderWithAccountBtn.addEventListener('click', () => {
-                if (currentUser) {
-                    // Пользователь уже авторизован
-                    orderWithAccount = true;
-                    orderMethodModal.style.display = 'none';
-                    openOrderModal();
-                } else {
-                    // Пользователь не авторизован, показываем форму входа/регистрации
-                    orderWithAccount = true;
-                    orderMethodModal.style.display = 'none';
-                    authModal.style.display = 'block';
-                    switchAuthTab('login');
-                }
-            });
-            
-            orderWithoutAccountBtn.addEventListener('click', () => {
-                orderWithAccount = false;
-                orderMethodModal.style.display = 'none';
-                openOrderModal();
-            });
-            
-            // Обработчики для импорта товаров
-            addUrlBtn.addEventListener('click', addImportUrl);
-            importProductsBtn.addEventListener('click', importProducts);
-            clearUrlsBtn.addEventListener('click', clearImportUrls);
-            
-            // Обработчик для парсинга Flowwow
-            parseFlowwowBtn.addEventListener('click', () => {
-                const url = flowwowUrlInput.value.trim();
-                
-                if (!url) {
-                    alert('Введите ссылку на товар в Flowwow');
-                    return;
-                }
-                
-                parseFlowwowData(url);
-            });
-            
-            // Закрытие модальных окон при клике вне их
-            window.addEventListener('click', (e) => {
-                if (e.target === adminModal) {
-                    adminModal.style.display = 'none';
-                }
-                if (e.target === orderModal) {
-                    orderModal.style.display = 'none';
-                }
-                if (e.target === orderMethodModal) {
-                    orderMethodModal.style.display = 'none';
-                }
-                if (e.target === productDetailModal) {
-                    productDetailModal.style.display = 'none';
-                }
-                if (e.target === authModal) {
-                    authModal.style.display = 'none';
-                }
-                if (e.target === adminPasswordModal) {
-                    adminPasswordModal.style.display = 'none';
-                }
-            });
-            
-            // Плавная прокрутка для якорных ссылок
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    
-                    if (targetElement) {
-                        const headerHeight = document.querySelector('header').offsetHeight;
-                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
-                        
-                        window.scrollTo({
-                            top: targetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        }
-
-        // Запускаем инициализацию при загрузке страницы
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+                orderSuccess.style.display
