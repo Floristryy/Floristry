@@ -1155,6 +1155,57 @@
                 flex-direction: column;
             }
         }
+
+        /* Стили для облачного хранилища */
+        .cloud-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .local-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(255, 193, 7, 0.9);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .upload-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        
+        .status-warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ff9800;
+        }
+        
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
     </style>
 </head>
 <body>
@@ -1531,6 +1582,7 @@
                                 <input type="file" id="product-image-file" class="file-input" accept="image/*">
                                 <input type="hidden" id="product-image-base64">
                                 <button type="button" id="remove-main-image" style="display: none; margin-top: 10px;">Удалить изображение</button>
+                                <div id="main-image-status" class="upload-status"></div>
                             </div>
                             <!-- Поле URL для обратной совместимости -->
                             <div class="url-fields">
@@ -1550,6 +1602,7 @@
                                 </div>
                                 <input type="file" id="additional-images-file" class="file-input" accept="image/*" multiple>
                                 <div class="uploaded-images" id="additional-images-preview"></div>
+                                <div id="additional-images-status" class="upload-status"></div>
                             </div>
                             <!-- Поле URL для обратной совместимости -->
                             <div class="url-fields">
@@ -1786,9 +1839,9 @@
     </div>
 
     <script>
-        // ==================== НАЧАЛО ИСПРАВЛЕНИЙ ====================
+        // ==================== ОСНОВНЫЕ НАСТРОЙКИ ====================
 
-        // НАСТРОЙКИ САЙТА - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // НАСТРОЙКИ САЙТА
         let siteSettings = JSON.parse(localStorage.getItem('flowerShopSettings')) || {
             siteLogo: "Флора",
             heroTitle: "Прекрасные цветы для особенных моментов",
@@ -1805,58 +1858,9 @@
             footerHoursWeekend: "Сб-Вс: 10:00 - 18:00",
             footerInstagram: "Instagram: @flora_flowers",
             footerVk: "VK: vk.com/flora_flowers",
-            // ЖЕСТКО ПРОПИСАННЫЕ НАСТРОЙКИ TELEGRAM - РАБОТАЮТ НА ВСЕХ УСТРОЙСТВАХ
             telegramBotToken: "8183336301:AAEyF5p_CjURbdhNpYYHs7cneY1T9oTLbqc",
             telegramChatId: "1138283490"
         };
-
-        // ГАРАНТИЯ: Всегда есть настройки Telegram
-        siteSettings.telegramBotToken = "8183336301:AAEyF5p_CjURbdhNpYYHs7cneY1T9oTLbqc";
-        siteSettings.telegramChatId = "1138283490";
-
-        // ФУНКЦИЯ ПРОВЕРКИ TELEGRAM - ВСЕГДА TRUE
-        function checkTelegramSettings() {
-            return true; // Всегда возвращаем true, так как настройки жестко прописаны
-        }
-
-        // ФУНКЦИЯ ОТПРАВКИ В TELEGRAM - ИСПРАВЛЕННАЯ ВЕРСИЯ
-        async function sendOrderToTelegram(orderData) {
-            // Используем жестко прописанные настройки
-            const botToken = "8183336301:AAEyF5p_CjURbdhNpYYHs7cneY1T9oTLbqc";
-            const chatId = "1138283490";
-            
-            const message = `🎉 НОВЫЙ ЗАКАЗ ИЗ МАГАЗИНА "ФЛОРА"\n\n` +
-                           `📦 Товар: ${orderData.productName}\n` +
-                           `💰 Цена: ${orderData.productPrice} руб.\n` +
-                           `👤 Имя: ${orderData.customerName}\n` +
-                           `📞 Телефон: ${orderData.customerPhone}\n` +
-                           `📍 Адрес: ${orderData.customerAddress || 'Не указан (возможно самовывоз)'}\n` +
-                           `📅 Дата доставки: ${orderData.deliveryDate || 'Не указана'}\n` +
-                           `⏰ Время доставки: ${orderData.deliveryTime || 'Не указано'}\n` +
-                           `💬 Комментарий: ${orderData.orderComment || 'Отсутствует'}\n\n` +
-                           `🕒 Время заказа: ${new Date().toLocaleString('ru-RU')}\n\n` +
-                           `❗️ НЕОБХОДИМО СВЯЗАТЬСЯ С КЛИЕНТОМ ДЛЯ ПОДТВЕРЖДЕНИЯ`;
-
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.ok) {
-                    console.log('✅ Заказ успешно отправлен в Telegram');
-                    return true;
-                } else {
-                    console.error('❌ Ошибка отправки заказа в Telegram:', data);
-                    return false;
-                }
-            } catch (error) {
-                console.error('❌ Ошибка сети при отправке заказа:', error);
-                return false;
-            }
-        }
-
-        // ==================== КОНЕЦ ИСПРАВЛЕНИЙ ====================
 
         // Данные по умолчанию с категориями
         let products = JSON.parse(localStorage.getItem('flowerShopProducts')) || [
@@ -1890,63 +1894,6 @@
                 size: "Высота 35 см, диаметр 25 см",
                 description: "Свежие тюльпаны разных цветов создают нежное и весеннее настроение. Идеальный выбор для романтического подарка или просто чтобы поднять настроение.",
                 category: "bouquets"
-            },
-            {
-                id: 3,
-                name: "Орхидеи",
-                price: 3200,
-                image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                images: [
-                    "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                    "https://images.unsplash.com/photo-1463154545680-d59320fd685d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ],
-                video: "",
-                composition: "Орхидея фаленопсис в горшке, декоративная упаковка",
-                size: "Высота 50 см вместе с горшком",
-                description: "Элегантные орхидеи в горшке - прекрасный подарок, который будет радовать долгое время. Неприхотливые в уходе, эти цветы станут украшением любого интерьера.",
-                category: "potted"
-            },
-            {
-                id: 4,
-                name: "Красная роза",
-                price: 350,
-                image: "https://images.unsplash.com/photo-1595003161985-d8b3dd3197c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                images: [
-                    "https://images.unsplash.com/photo-1595003161985-d8b3dd3197c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ],
-                video: "",
-                composition: "Свежая красная роза, длина стебля 60 см",
-                size: "Высота 60 см",
-                description: "Прекрасная красная роза премиум-класса. Идеально подходит для создания собственных букетов или как одиночный подарок.",
-                category: "piece"
-            },
-            {
-                id: 5,
-                name: "Подарочная открытка",
-                price: 150,
-                image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                images: [
-                    "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ],
-                video: "",
-                composition: "Дизайнерская открытка с конвертом",
-                size: "10x15 см",
-                description: "Элегантная подарочная открытка для любых торжественных случаев. Можно добавить персональное поздравление.",
-                category: "additional"
-            },
-            {
-                id: 6,
-                name: "Набор 'Для нее'",
-                price: 4500,
-                image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                images: [
-                    "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                ],
-                video: "",
-                composition: "Букет роз, шоколадные конфеты, мягкая игрушка, открытка",
-                size: "Коробка 30x30x15 см",
-                description: "Идеальный подарок для женщины на любой праздник. В набор входят цветы, сладости и милый подарок.",
-                category: "sets"
             }
         ];
 
@@ -2033,8 +1980,8 @@
         const flowwowResults = document.getElementById('flowwow-results');
         const flowwowResultsList = document.getElementById('flowwow-results-list');
 
-               // ==================== ЭЛЕМЕНТЫ ДЛЯ ЗАГРУЗКИ ИЗОБРАЖЕНИЙ ====================
-        
+        // ==================== ОБЛАЧНОЕ ХРАНИЛИЩЕ ДЛЯ ФОТО ====================
+
         // Элементы для загрузки изображений
         const mainImageUpload = document.getElementById('main-image-upload');
         const mainImageFileInput = document.getElementById('product-image-file');
@@ -2042,22 +1989,21 @@
         const mainImageBase64Input = document.getElementById('product-image-base64');
         const removeMainImageBtn = document.getElementById('remove-main-image');
         const productImageUrlInput = document.getElementById('product-image-url');
+        const mainImageStatus = document.getElementById('main-image-status');
         
         const additionalImagesUpload = document.getElementById('additional-images-upload');
         const additionalImagesFileInput = document.getElementById('additional-images-file');
         const additionalImagesPreview = document.getElementById('additional-images-preview');
         const productImagesUrlInput = document.getElementById('product-images-url');
+        const additionalImagesStatus = document.getElementById('additional-images-status');
         
         // Переменные для хранения загруженных изображений
         let mainImageBase64 = '';
         let additionalImagesBase64 = [];
 
-        // ==================== ОБЛАЧНОЕ ХРАНИЛИЩЕ IMGBB ====================
-        
         // Функция для загрузки фото в облако ImgBB
         async function uploadToImgBB(file) {
             try {
-                console.log('📤 Начинаю загрузку в облако...');
                 const formData = new FormData();
                 formData.append('image', file);
                 
@@ -2066,23 +2012,21 @@
                     body: formData
                 });
                 
-                if (!response.ok) throw new Error('Ошибка сети');
-                
                 const data = await response.json();
                 
                 if (data.success) {
                     console.log('✅ Фото загружено в облако:', data.data.url);
-                    return data.data.url; // Возвращаем URL который видят все
+                    return data.data.url;
                 } else {
                     throw new Error('Ошибка загрузки в облако');
                 }
             } catch (error) {
                 console.error('❌ Ошибка ImgBB:', error);
-                throw error; // Пробрасываем ошибку дальше
+                throw error;
             }
         }
 
-        // Функция для конвертации файла в Base64 (резервный вариант)
+        // Функция для конвертации файла в Base64
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -2101,8 +2045,6 @@
             }
             return true;
         }
-
-        // ==================== ПЕРЕОПРЕДЕЛЕННЫЕ ФУНКЦИИ ЗАГРУЗКИ ====================
 
         // Обработчики для основного изображения
         mainImageUpload.addEventListener('click', () => {
@@ -2170,11 +2112,12 @@
             removeMainImageBtn.style.display = 'none';
             mainImageFileInput.value = '';
             productImageUrlInput.value = '';
+            mainImageStatus.innerHTML = '';
             mainImageUpload.querySelector('p').textContent = 
                 'Нажмите для загрузки изображения или перетащите файл сюда';
         });
 
-        // ОСНОВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ГЛАВНОГО ИЗОБРАЖЕНИЯ
+        // ФУНКЦИЯ ЗАГРУЗКИ ОСНОВНОГО ИЗОБРАЖЕНИЯ
         async function handleMainImageFile(file) {
             if (!checkFileSize(file)) return;
             
@@ -2186,8 +2129,9 @@
             try {
                 // Показываем загрузку
                 mainImageUpload.innerHTML = '<div class="upload-icon">⏳</div><p>Загружаем в облако...</p>';
+                mainImageStatus.innerHTML = '<div class="upload-status status-warning">Загрузка в облако...</div>';
                 
-                // Пытаемся загрузить в облако
+                // Загружаем в облако
                 const imageUrl = await uploadToImgBB(file);
                 
                 // УСПЕХ: сохраняем URL облака
@@ -2196,17 +2140,18 @@
                 mainImagePreview.style.display = 'block';
                 removeMainImageBtn.style.display = 'block';
                 mainImageUpload.querySelector('p').textContent = '✅ Фото в облаке (видят все)';
+                mainImageStatus.innerHTML = '<div class="upload-status status-success">✅ Фото загружено в облако</div>';
                 
-                // Очищаем Base64 (не нужно)
+                // Очищаем Base64
                 mainImageBase64 = '';
                 mainImageBase64Input.value = '';
-                
-                console.log('✅ Основное фото загружено в облако');
                 
             } catch (error) {
                 console.error('Ошибка облака:', error);
                 
-                // РЕЗЕРВНЫЙ ВАРИАНТ: используем Base64 (только для вашего браузера)
+                // РЕЗЕРВ: используем Base64
+                mainImageStatus.innerHTML = '<div class="upload-status status-warning">⚠️ Используется локальное сохранение</div>';
+                
                 const base64 = await fileToBase64(file);
                 mainImageBase64 = base64;
                 mainImageBase64Input.value = base64;
@@ -2227,6 +2172,8 @@
             
             let cloudUploadCount = 0;
             let localUploadCount = 0;
+            
+            additionalImagesStatus.innerHTML = '<div class="upload-status status-warning">Загрузка изображений...</div>';
             
             for (const file of imageFiles) {
                 try {
@@ -2258,13 +2205,16 @@
             let statusText = '';
             if (cloudUploadCount > 0 && localUploadCount > 0) {
                 statusText = `✅ ${cloudUploadCount} в облаке + ⚠️ ${localUploadCount} локально`;
+                additionalImagesStatus.innerHTML = `<div class="upload-status status-warning">${statusText}</div>`;
             } else if (cloudUploadCount > 0) {
                 statusText = `✅ Загружено ${cloudUploadCount} фото в облако`;
+                additionalImagesStatus.innerHTML = `<div class="upload-status status-success">${statusText}</div>`;
             } else if (localUploadCount > 0) {
                 statusText = `⚠️ ${localUploadCount} фото только на этом устройстве`;
+                additionalImagesStatus.innerHTML = `<div class="upload-status status-warning">${statusText}</div>`;
             }
             
-            additionalImagesUpload.querySelector('p').textContent = statusText;
+            additionalImagesUpload.querySelector('p').textContent = statusText || 'Нажмите для загрузки дополнительных изображений';
         }
 
         // ФУНКЦИЯ ДОБАВЛЕНИЯ ПРЕВЬЮ
@@ -2275,7 +2225,7 @@
             imageItem.innerHTML = `
                 <img src="${imageSrc}" class="uploaded-image" alt="Фото товара">
                 <button type="button" class="remove-image">×</button>
-                ${type === 'local' ? '<div class="local-badge">⚠️ Локально</div>' : ''}
+                <div class="${type === 'cloud' ? 'cloud-badge' : 'local-badge'}">${type === 'cloud' ? '☁️' : '⚠️'}</div>
             `;
             
             additionalImagesPreview.appendChild(imageItem);
@@ -2306,6 +2256,8 @@
             additionalImagesPreview.innerHTML = '';
             productImageUrlInput.value = '';
             productImagesUrlInput.value = '';
+            mainImageStatus.innerHTML = '';
+            additionalImagesStatus.innerHTML = '';
             
             // Восстанавливаем исходные тексты
             mainImageUpload.querySelector('p').textContent = 
@@ -2314,7 +2266,15 @@
                 'Нажмите для загрузки дополнительных изображений';
         }
 
-        console.log('☁️ Облачное хранилище активировано!');
+        // Переменные для управления состоянием
+        let editMode = false;
+        let currentEditId = null;
+        let currentOrderProduct = null;
+        let currentMediaIndex = 0;
+        let orderWithAccount = false;
+
+        // Пароль для админки
+        const ADMIN_PASSWORD = "Ruuk1001";
 
         // ==================== ОСНОВНЫЕ ФУНКЦИИ САЙТА ====================
 
@@ -2538,6 +2498,42 @@
             saveOrders();
             
             return newOrder;
+        }
+
+        // Функция для отправки заказа в Telegram
+        async function sendOrderToTelegram(orderData) {
+            const botToken = "8183336301:AAEyF5p_CjURbdhNpYYHs7cneY1T9oTLbqc";
+            const chatId = "1138283490";
+            
+            const message = `🎉 НОВЫЙ ЗАКАЗ ИЗ МАГАЗИНА "ФЛОРА"\n\n` +
+                           `📦 Товар: ${orderData.productName}\n` +
+                           `💰 Цена: ${orderData.productPrice} руб.\n` +
+                           `👤 Имя: ${orderData.customerName}\n` +
+                           `📞 Телефон: ${orderData.customerPhone}\n` +
+                           `📍 Адрес: ${orderData.customerAddress || 'Не указан (возможно самовывоз)'}\n` +
+                           `📅 Дата доставки: ${orderData.deliveryDate || 'Не указана'}\n` +
+                           `⏰ Время доставки: ${orderData.deliveryTime || 'Не указано'}\n` +
+                           `💬 Комментарий: ${orderData.orderComment || 'Отсутствует'}\n\n` +
+                           `🕒 Время заказа: ${new Date().toLocaleString('ru-RU')}\n\n` +
+                           `❗️ НЕОБХОДИМО СВЯЗАТЬСЯ С КЛИЕНТОМ ДЛЯ ПОДТВЕРЖДЕНИЯ`;
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.ok) {
+                    console.log('✅ Заказ успешно отправлен в Telegram');
+                    return true;
+                } else {
+                    console.error('❌ Ошибка отправки заказа в Telegram:', data);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Ошибка сети при отправке заказа:', error);
+                return false;
+            }
         }
 
         // Функция для отображения заказов пользователя
@@ -2803,202 +2799,6 @@
             return password === ADMIN_PASSWORD;
         }
 
-        // Функция для парсинга данных с Flowwow
-        function parseFlowwowData(url) {
-            // Показываем прогресс
-            flowwowProgress.style.display = 'block';
-            flowwowResults.style.display = 'block';
-            flowwowResultsList.innerHTML = '';
-            
-            // Имитируем процесс парсинга с задержкой
-            setTimeout(() => {
-                flowwowProgressFill.style.width = '25%';
-                flowwowProgressText.textContent = '25% - Получение данных...';
-            }, 500);
-            
-            setTimeout(() => {
-                flowwowProgressFill.style.width = '50%';
-                flowwowProgressText.textContent = '50% - Анализ страницы...';
-            }, 1000);
-            
-            setTimeout(() => {
-                flowwowProgressFill.style.width = '75%';
-                flowwowProgressText.textContent = '75% - Извлечение информации...';
-            }, 1500);
-            
-            setTimeout(() => {
-                flowwowProgressFill.style.width = '100%';
-                flowwowProgressText.textContent = '100% - Завершено!';
-                
-                // В реальном приложении здесь был бы запрос к серверу для парсинга Flowwow
-                // Поскольку мы не можем сделать это из браузера из-за CORS, создаем фиктивные данные
-                
-                // Извлекаем ID товара из URL
-                const urlParams = new URLSearchParams(new URL(url).search);
-                const productId = urlParams.get('id') || 'unknown';
-                
-                // Создаем фиктивные данные на основе ID
-                const productData = generateFlowwowProductData(productId);
-                
-                // Заполняем форму данными
-                fillProductForm(productData);
-                
-                // Показываем результаты
-                const resultItem = document.createElement('div');
-                resultItem.className = 'result-item result-success';
-                resultItem.innerHTML = `✓ Данные успешно получены с Flowwow! Товар "${productData.name}" готов к сохранению.`;
-                flowwowResultsList.appendChild(resultItem);
-                
-                // Скрываем прогресс через 2 секунды
-                setTimeout(() => {
-                    flowwowProgress.style.display = 'none';
-                    
-                    // Переключаемся на вкладку товаров
-                    adminTabs.forEach(t => t.classList.remove('active'));
-                    adminTabContents.forEach(c => c.classList.remove('active'));
-                    
-                    document.querySelector('[data-tab="products"]').classList.add('active');
-                    document.getElementById('products-tab').classList.add('active');
-                }, 2000);
-                
-            }, 2000);
-        }
-
-        // Функция для генерации фиктивных данных Flowwow
-        function generateFlowwowProductData(productId) {
-            // Генерируем данные на основе ID для разнообразия
-            const seed = parseInt(productId) || 1;
-            
-            const productNames = [
-                "Элегантный букет роз", 
-                "Свежие тюльпаны", 
-                "Нежные орхидеи", 
-                "Яркие герберы", 
-                "Романтичные пионы",
-                "Экзотические лилии",
-                "Классические хризантемы",
-                "Полевые цветы",
-                "Свадебный букет",
-                "Букет для мужчины"
-            ];
-            
-            const productDescriptions = [
-                "Прекрасный букет для особого случая. Свежие цветы, собранные вручную нашими флористами, будут радовать вас и ваших близких долгое время.",
-                "Свежие цветы с доставкой. Идеальный выбор для романтического подарка или просто чтобы поднять настроение.",
-                "Идеальный подарок для любимых. Эти цветы станут украшением любого интерьера и будут радовать вас долгое время.",
-                "Создайте праздничное настроение с этим ярким букетом. Цветы тщательно отобраны нашими флористами для обеспечения высочайшего качества.",
-                "Эксклюзивная композиция от нашего флориста. Уникальный дизайн и свежесть цветов гарантированы.",
-                "Экзотические цветы для истинных ценителей красоты. Редкие сорта, привезенные специально для вас.",
-                "Классика, которая никогда не выходит из моды. Идеальный выбор для торжественных мероприятий.",
-                "Нежные полевые цветы, собранные вручную. Напоминают о лете и теплых днях.",
-                "Идеальный свадебный букет для невесты. Создан с учетом последних тенденций флористики.",
-                "Строгий и элегантный букет для мужчины. Подчеркивает индивидуальность и стиль."
-            ];
-            
-            const productCompositions = [
-                "25 роз, зелень, упаковка",
-                "15 тюльпанов, зелень, упаковка",
-                "Орхидея в горшке, декоративная упаковка",
-                "20 гербер, зелень, упаковка",
-                "10 пионов, зелень, упаковка",
-                "5 лилий, зелень, декоративные элементы",
-                "30 хризантем, зелень, упаковка",
-                "Полевые цветы, зелень, льняная упаковка",
-                "Белые розы, орхидеи, зелень, свадебная лента",
-                "Антуриумы, зелень, мужская упаковка"
-            ];
-            
-            const productSizes = [
-                "Высота 40 см, диаметр 30 см",
-                "Высота 35 см, диаметр 25 см",
-                "Высота 50 см вместе с горшком",
-                "Высота 45 см, диаметр 35 см",
-                "Высота 38 см, диаметр 28 см",
-                "Высота 55 см, диаметр 40 см",
-                "Высота 42 см, диаметр 32 см",
-                "Высота 30 см, диаметр 20 см",
-                "Высота 48 см, диаметр 38 см",
-                "Высота 36 см, диаметр 26 см"
-            ];
-            
-            const productImages = [
-                "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1582794543139-8ac9cad0c8e3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1572853135042-8ba4cf28d0c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1597848212624-e6d4bd7d132d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1596464716127-f2a82984de30?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1574856344992-7b8c3bb0a5c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1570033313599-d5d6972e5279?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-            ];
-            
-            const index = seed % 10;
-            const price = Math.floor(Math.random() * 3000) + 1000;
-            
-            return {
-                name: productNames[index],
-                price: price,
-                image: productImages[index],
-                images: [productImages[index], productImages[(index + 1) % 10], productImages[(index + 2) % 10]],
-                video: "",
-                composition: productCompositions[index],
-                size: productSizes[index],
-                description: productDescriptions[index],
-                category: "bouquets"
-            };
-        }
-
-        // Функция для заполнения формы данными
-        function fillProductForm(productData) {
-            document.getElementById('product-category').value = productData.category;
-            document.getElementById('product-name').value = productData.name;
-            document.getElementById('product-price').value = productData.price;
-            
-            // Обрабатываем основное изображение
-            if (productData.image.startsWith('data:image')) {
-                // Это Base64 изображение
-                mainImageBase64 = productData.image;
-                mainImagePreview.src = productData.image;
-                mainImagePreview.style.display = 'block';
-                removeMainImageBtn.style.display = 'block';
-                mainImageUpload.querySelector('p').textContent = 'Изображение загружено';
-                productImageUrlInput.value = '';
-            } else {
-                // Это URL
-                productImageUrlInput.value = productData.image;
-                resetImageUploads();
-            }
-            
-            // Обрабатываем дополнительные изображения
-            const base64Images = productData.images.filter(img => img.startsWith('data:image'));
-            const urlImages = productData.images.filter(img => !img.startsWith('data:image'));
-            
-            if (base64Images.length > 0) {
-                additionalImagesBase64 = base64Images;
-                additionalImagesBase64.forEach(base64 => {
-                    addAdditionalImagePreview(base64);
-                });
-                additionalImagesUpload.querySelector('p').textContent = `Загружено ${base64Images.length} изображений`;
-                productImagesUrlInput.value = '';
-            } else if (urlImages.length > 0) {
-                productImagesUrlInput.value = urlImages.join(', ');
-                resetImageUploads();
-            }
-            
-            document.getElementById('product-video').value = productData.video;
-            document.getElementById('product-composition').value = productData.composition;
-            document.getElementById('product-size').value = productData.size;
-            document.getElementById('product-description').value = productData.description;
-            
-            // Сбрасываем режим редактирования
-            editMode = false;
-            currentEditId = null;
-            document.getElementById('edit-id').value = '';
-            document.getElementById('form-title').textContent = 'Добавить новый товар';
-        }
-
         // Функция для отображения товаров в панели администратора
         function displayAdminProducts() {
             adminProductsList.innerHTML = '';
@@ -3035,274 +2835,22 @@
                 adminProductsList.appendChild(productItem);
             });
             
-            // Исправленные обработчики событий для кнопок редактирования и удаления
+            // Обработчики событий для кнопок редактирования и удаления
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Предотвращаем всплытие события
+                    e.stopPropagation();
                     const id = parseInt(this.getAttribute('data-id'));
-                    console.log('Edit button clicked for product:', id);
                     editProduct(id);
                 });
             });
             
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Предотвращаем всплытие события
+                    e.stopPropagation();
                     const id = parseInt(this.getAttribute('data-id'));
-                    console.log('Delete button clicked for product:', id);
                     deleteProduct(id);
                 });
             });
-        }
-
-        // Функция для отображения списка URL для импорта
-        function displayImportUrls() {
-            urlList.innerHTML = '';
-            
-            if (importUrls.length === 0) {
-                urlList.innerHTML = '<p>Список ссылок пуст</p>';
-                importProductsBtn.disabled = true;
-                return;
-            }
-            
-            importUrls.forEach((url, index) => {
-                const urlItem = document.createElement('div');
-                urlItem.className = 'url-item';
-                urlItem.innerHTML = `
-                    <span class="url-text">${url}</span>
-                    <button class="remove-url" data-index="${index}">×</button>
-                `;
-                urlList.appendChild(urlItem);
-            });
-            
-            importProductsBtn.disabled = false;
-            
-            // Добавляем обработчики для кнопок удаления
-            document.querySelectorAll('.remove-url').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.getAttribute('data-index'));
-                    removeImportUrl(index);
-                });
-            });
-        }
-
-        // Функция для добавления URL в список импорта
-        function addImportUrl() {
-            const url = productUrlInput.value.trim();
-            
-            if (!url) {
-                alert('Введите ссылку на товар');
-                return;
-            }
-            
-            // Проверяем, что ссылка не дублируется
-            if (importUrls.includes(url)) {
-                alert('Эта ссылка уже добавлена в список');
-                return;
-            }
-            
-            importUrls.push(url);
-            saveImportUrls();
-            displayImportUrls();
-            productUrlInput.value = '';
-        }
-
-        // Функция для удаления URL из списка импорта
-        function removeImportUrl(index) {
-            importUrls.splice(index, 1);
-            saveImportUrls();
-            displayImportUrls();
-        }
-
-        // Функция для очистки списка URL
-        function clearImportUrls() {
-            importUrls = [];
-            saveImportUrls();
-            displayImportUrls();
-        }
-
-        // Функция для импорта товаров по URL
-        function importProducts() {
-            if (importUrls.length === 0) {
-                alert('Нет ссылок для импорта');
-                return;
-            }
-            
-            // Показываем прогресс
-            importProgress.style.display = 'block';
-            importResults.style.display = 'block';
-            resultsList.innerHTML = '';
-            
-            let importedCount = 0;
-            let errorCount = 0;
-            
-            // Имитируем процесс импорта
-            importUrls.forEach((url, index) => {
-                setTimeout(() => {
-                    // В реальном приложении здесь был бы запрос к API платформы
-                    // или парсинг страницы для получения данных о товаре
-                    
-                    // Для демонстрации создаем фиктивный товар на основе URL
-                    const productData = parseProductFromUrl(url);
-                    
-                    if (productData) {
-                        // Добавляем товар в список
-                        addImportedProduct(productData);
-                        importedCount++;
-                        
-                        // Добавляем успешный результат
-                        const resultItem = document.createElement('div');
-                        resultItem.className = 'result-item result-success';
-                        resultItem.innerHTML = `✓ Успешно: ${productData.name}`;
-                        resultsList.appendChild(resultItem);
-                    } else {
-                        errorCount++;
-                        
-                        // Добавляем ошибку
-                        const resultItem = document.createElement('div');
-                        resultItem.className = 'result-item result-error';
-                        resultItem.innerHTML = `✗ Ошибка: Не удалось импортировать товар по ссылке ${url}`;
-                        resultsList.appendChild(resultItem);
-                    }
-                    
-                    // Обновляем прогресс
-                    const progress = Math.round(((index + 1) / importUrls.length) * 100);
-                    progressFill.style.width = `${progress}%`;
-                    progressText.textContent = `${progress}% (${index + 1} из ${importUrls.length})`;
-                    
-                    // Если все товары обработаны
-                    if (index === importUrls.length - 1) {
-                        setTimeout(() => {
-                            importProgress.style.display = 'none';
-                            
-                            // Показываем итоги
-                            const summary = document.createElement('div');
-                            summary.className = 'result-item result-success';
-                            summary.innerHTML = `Импорт завершен! Успешно: ${importedCount}, Ошибок: ${errorCount}`;
-                            resultsList.appendChild(summary);
-                            
-                            // Очищаем список URL после успешного импорта
-                            if (importedCount > 0) {
-                                clearImportUrls();
-                            }
-                        }, 500);
-                    }
-                }, index * 1000); // Имитируем задержку для наглядности
-            });
-        }
-
-        // Функция для парсинга данных товара из URL (заглушка)
-        function parseProductFromUrl(url) {
-            // В реальном приложении здесь был бы код для получения данных с платформы
-            // Поскольку мы не знаем структуру платформы, создаем фиктивные данные
-            
-            // Генерируем случайные данные для демонстрации
-            const productNames = [
-                "Элегантный букет роз", 
-                "Свежие тюльпаны", 
-                "Нежные орхидеи", 
-                "Яркие герберы", 
-                "Романтичные пионы"
-            ];
-            
-            const productDescriptions = [
-                "Прекрасный букет для особого случая. Свежие цветы, собранные вручную нашими флористами, будут радовать вас и ваших близких долгое время.",
-                "Свежие цветы с доставкой. Идеальный выбор для романтического подарка или просто чтобы поднять настроение.",
-                "Идеальный подарок для любимых. Эти цветы станут украшением любого интерьера и будут радовать вас долгое время.",
-                "Создайте праздничное настроение с этим ярким букетом. Цветы тщательно отобраны нашими флористами для обеспечения высочайшего качества.",
-                "Эксклюзивная композиция от нашего флориста. Уникальный дизайн и свежесть цветов гарантированы."
-            ];
-            
-            const productCompositions = [
-                "25 роз, зелень, упаковка",
-                "15 тюльпанов, зелень, упаковка",
-                "Орхидея в горшке, декоративная упаковка",
-                "20 гербер, зелень, упаковка",
-                "10 пионов, зелень, упаковка"
-            ];
-            
-            const productSizes = [
-                "Высота 40 см, диаметр 30 см",
-                "Высота 35 см, диаметр 25 см",
-                "Высота 50 см вместе с горшком",
-                "Высота 45 см, диаметр 35 см",
-                "Высота 38 см, диаметр 28 см"
-            ];
-            
-            const productImages = [
-                "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1582794543139-8ac9cad0c8e3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1572853135042-8ba4cf28d0c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-                "https://images.unsplash.com/photo-1563241527-3004b7be0ffd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-            ];
-            
-            const categories = ["bouquets", "piece", "potted", "additional", "sets"];
-            
-            const randomIndex = Math.floor(Math.random() * productNames.length);
-            const randomCategoryIndex = Math.floor(Math.random() * categories.length);
-            
-            return {
-                name: productNames[randomIndex],
-                price: Math.floor(Math.random() * 3000) + 1000,
-                image: productImages[randomIndex],
-                images: [productImages[randomIndex], productImages[(randomIndex + 1) % 5], productImages[(randomIndex + 2) % 5]],
-                video: "",
-                composition: productCompositions[randomIndex],
-                size: productSizes[randomIndex],
-                description: productDescriptions[randomIndex],
-                category: categories[randomCategoryIndex]
-            };
-        }
-
-        // Функция для добавления импортированного товара
-        function addImportedProduct(productData) {
-            // Генерируем уникальный ID
-            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-            productData.id = newId;
-            
-            products.push(productData);
-            saveProducts();
-            displayProductsByCategory();
-            displayAdminProducts();
-        }
-
-        // Функция для применения настроек сайта
-        function applySiteSettings() {
-            document.getElementById('site-logo').textContent = siteSettings.siteLogo;
-            document.getElementById('hero-title').textContent = siteSettings.heroTitle;
-            document.getElementById('hero-subtitle').textContent = siteSettings.heroSubtitle;
-            document.querySelector('.hero').style.backgroundImage = `url('${siteSettings.heroImage}')`;
-            document.getElementById('about-title').textContent = siteSettings.aboutTitle;
-            document.getElementById('about-text').textContent = siteSettings.aboutText;
-            document.getElementById('about-image').src = siteSettings.aboutImage;
-            document.getElementById('products-title').textContent = siteSettings.productsTitle;
-            document.getElementById('footer-phone').textContent = siteSettings.footerPhone;
-            document.getElementById('footer-address').textContent = siteSettings.footerAddress;
-            document.getElementById('footer-email').textContent = siteSettings.footerEmail;
-            document.getElementById('footer-hours-weekdays').textContent = siteSettings.footerHoursWeekdays;
-            document.getElementById('footer-hours-weekend').textContent = siteSettings.footerHoursWeekend;
-            document.getElementById('footer-instagram').textContent = siteSettings.footerInstagram;
-            document.getElementById('footer-vk').textContent = siteSettings.footerVk;
-            
-            // Заполняем формы в админке
-            document.getElementById('site-logo-input').value = siteSettings.siteLogo;
-            document.getElementById('hero-title-input').value = siteSettings.heroTitle;
-            document.getElementById('hero-subtitle-input').value = siteSettings.heroSubtitle;
-            document.getElementById('hero-image-input').value = siteSettings.heroImage;
-            document.getElementById('about-title-input').value = siteSettings.aboutTitle;
-            document.getElementById('about-text-input').value = siteSettings.aboutText;
-            document.getElementById('about-image-input').value = siteSettings.aboutImage;
-            document.getElementById('products-title-input').value = siteSettings.productsTitle;
-            document.getElementById('footer-phone-input').value = siteSettings.footerPhone.replace('Телефон: ', '');
-            document.getElementById('footer-address-input').value = siteSettings.footerAddress.replace('Адрес: ', '');
-            document.getElementById('footer-email-input').value = siteSettings.footerEmail.replace('Email: ', '');
-            document.getElementById('footer-hours-weekdays-input').value = siteSettings.footerHoursWeekdays.replace('Пн-Пт: ', '');
-            document.getElementById('footer-hours-weekend-input').value = siteSettings.footerHoursWeekend.replace('Сб-Вс: ', '');
-            document.getElementById('footer-instagram-input').value = siteSettings.footerInstagram.replace('Instagram: ', '');
-            document.getElementById('footer-vk-input').value = siteSettings.footerVk.replace('VK: ', '');
-            document.getElementById('telegram-bot-token').value = siteSettings.telegramBotToken;
-            document.getElementById('telegram-chat-id').value = siteSettings.telegramChatId;
         }
 
         // Функция для добавления нового товара
@@ -3316,6 +2864,8 @@
             displayProductsByCategory();
             displayAdminProducts();
             resetProductForm();
+            
+            alert('Товар успешно добавлен!');
         }
 
         // Функция для редактирования товара
@@ -3323,7 +2873,6 @@
             const product = products.find(p => p.id === id);
             
             if (product) {
-                console.log('Editing product:', product);
                 editMode = true;
                 currentEditId = id;
                 
@@ -3334,7 +2883,7 @@
                 document.getElementById('product-price').value = product.price;
                 
                 // Обрабатываем основное изображение
-                resetImageUploads(); // Сначала сбрасываем все
+                resetImageUploads();
                 
                 if (product.image.startsWith('data:image')) {
                     // Это Base64 изображение
@@ -3343,24 +2892,32 @@
                     mainImagePreview.style.display = 'block';
                     removeMainImageBtn.style.display = 'block';
                     mainImageUpload.querySelector('p').textContent = 'Изображение загружено';
+                    mainImageStatus.innerHTML = '<div class="upload-status status-warning">⚠️ Локальное изображение</div>';
                 } else {
                     // Это URL
                     productImageUrlInput.value = product.image;
+                    mainImagePreview.src = product.image;
+                    mainImagePreview.style.display = 'block';
+                    removeMainImageBtn.style.display = 'block';
+                    mainImageUpload.querySelector('p').textContent = 'Изображение из облака';
+                    mainImageStatus.innerHTML = '<div class="upload-status status-success">✅ Изображение из облака</div>';
                 }
                 
                 // Обрабатываем дополнительные изображения
                 if (product.images && product.images.length > 0) {
-                    product.images.forEach((img, index) => {
+                    product.images.forEach((img) => {
                         if (img.startsWith('data:image')) {
                             additionalImagesBase64.push(img);
-                            addAdditionalImagePreview(img);
+                            addAdditionalImagePreview(img, 'local');
+                        } else {
+                            addAdditionalImagePreview(img, 'cloud');
                         }
                     });
                     
-                    if (additionalImagesBase64.length > 0) {
-                        additionalImagesUpload.querySelector('p').textContent = `Загружено ${additionalImagesBase64.length} изображений`;
-                    } else {
-                        // Если изображения в формате URL
+                    if (product.images.length > 0) {
+                        additionalImagesUpload.querySelector('p').textContent = `Загружено ${product.images.length} изображений`;
+                        
+                        // Обновляем поле URL
                         const urlImages = product.images.filter(img => !img.startsWith('data:image'));
                         if (urlImages.length > 0) {
                             productImagesUrlInput.value = urlImages.join(', ');
@@ -3462,6 +3019,44 @@
             document.getElementById(`${tabName}-tab`).classList.add('active');
         }
 
+        // Функция для применения настроек сайта
+        function applySiteSettings() {
+            document.getElementById('site-logo').textContent = siteSettings.siteLogo;
+            document.getElementById('hero-title').textContent = siteSettings.heroTitle;
+            document.getElementById('hero-subtitle').textContent = siteSettings.heroSubtitle;
+            document.querySelector('.hero').style.backgroundImage = `url('${siteSettings.heroImage}')`;
+            document.getElementById('about-title').textContent = siteSettings.aboutTitle;
+            document.getElementById('about-text').textContent = siteSettings.aboutText;
+            document.getElementById('about-image').src = siteSettings.aboutImage;
+            document.getElementById('products-title').textContent = siteSettings.productsTitle;
+            document.getElementById('footer-phone').textContent = siteSettings.footerPhone;
+            document.getElementById('footer-address').textContent = siteSettings.footerAddress;
+            document.getElementById('footer-email').textContent = siteSettings.footerEmail;
+            document.getElementById('footer-hours-weekdays').textContent = siteSettings.footerHoursWeekdays;
+            document.getElementById('footer-hours-weekend').textContent = siteSettings.footerHoursWeekend;
+            document.getElementById('footer-instagram').textContent = siteSettings.footerInstagram;
+            document.getElementById('footer-vk').textContent = siteSettings.footerVk;
+            
+            // Заполняем формы в админке
+            document.getElementById('site-logo-input').value = siteSettings.siteLogo;
+            document.getElementById('hero-title-input').value = siteSettings.heroTitle;
+            document.getElementById('hero-subtitle-input').value = siteSettings.heroSubtitle;
+            document.getElementById('hero-image-input').value = siteSettings.heroImage;
+            document.getElementById('about-title-input').value = siteSettings.aboutTitle;
+            document.getElementById('about-text-input').value = siteSettings.aboutText;
+            document.getElementById('about-image-input').value = siteSettings.aboutImage;
+            document.getElementById('products-title-input').value = siteSettings.productsTitle;
+            document.getElementById('footer-phone-input').value = siteSettings.footerPhone.replace('Телефон: ', '');
+            document.getElementById('footer-address-input').value = siteSettings.footerAddress.replace('Адрес: ', '');
+            document.getElementById('footer-email-input').value = siteSettings.footerEmail.replace('Email: ', '');
+            document.getElementById('footer-hours-weekdays-input').value = siteSettings.footerHoursWeekdays.replace('Пн-Пт: ', '');
+            document.getElementById('footer-hours-weekend-input').value = siteSettings.footerHoursWeekend.replace('Сб-Вс: ', '');
+            document.getElementById('footer-instagram-input').value = siteSettings.footerInstagram.replace('Instagram: ', '');
+            document.getElementById('footer-vk-input').value = siteSettings.footerVk.replace('VK: ', '');
+            document.getElementById('telegram-bot-token').value = siteSettings.telegramBotToken;
+            document.getElementById('telegram-chat-id').value = siteSettings.telegramChatId;
+        }
+
         // Инициализация при загрузке страницы
         function init() {
             // Применяем настройки сайта
@@ -3469,9 +3064,6 @@
             
             // Отображаем товары
             displayProductsByCategory();
-            
-            // Отображаем список URL для импорта
-            displayImportUrls();
             
             // Обновляем интерфейс авторизации
             updateAuthUI();
@@ -3564,31 +3156,31 @@
             productForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                // Получаем данные из формы с учетом загруженных изображений
+                // Получаем данные из формы
                 const category = document.getElementById('product-category').value;
                 const name = document.getElementById('product-name').value;
                 const price = parseFloat(document.getElementById('product-price').value);
                 
-                // Определяем основное изображение (приоритет у загруженного файла)
-                let image = '';
-                if (mainImageBase64) {
-                    image = mainImageBase64;
-                } else if (productImageUrlInput.value) {
-                    image = productImageUrlInput.value;
-                } else {
-                    alert('Пожалуйста, загрузите основное изображение или укажите URL');
+                // ОСНОВНОЕ ИЗОБРАЖЕНИЕ - приоритет у URL из облака
+                let image = productImageUrlInput.value || mainImageBase64 || '';
+                if (!image) {
+                    alert('Пожалуйста, загрузите основное изображение');
                     return;
                 }
                 
-                // Определяем дополнительные изображения
+                // ДОПОЛНИТЕЛЬНЫЕ ИЗОБРАЖЕНИЯ - объединяем URL и Base64
                 let images = [];
-                if (additionalImagesBase64.length > 0) {
-                    images = additionalImagesBase64;
-                } else if (productImagesUrlInput.value) {
-                    images = productImagesUrlInput.value.split(',').map(url => url.trim()).filter(url => url);
+                
+                // Добавляем URL из облака
+                if (productImagesUrlInput.value) {
+                    const urlImages = productImagesUrlInput.value.split(',').map(url => url.trim()).filter(url => url);
+                    images = [...images, ...urlImages];
                 }
                 
-                // Если нет дополнительных изображений, используем основное
+                // Добавляем Base64 изображения (локальные)
+                images = [...images, ...additionalImagesBase64];
+                
+                // Если нет дополнительных, используем основное
                 if (images.length === 0) {
                     images = [image];
                 }
@@ -3704,6 +3296,10 @@
                     adminPasswordModal.style.display = 'none';
                     adminModal.style.display = 'block';
                     adminPasswordForm.reset();
+                    
+                    // При открытии админки обновляем списки
+                    displayAdminProducts();
+                    displayAdminOrders();
                 } else {
                     alert('Неверный пароль');
                 }
@@ -3811,21 +3407,6 @@
                 }, 5000);
             });
             
-            // Обработчики для импорта
-            addUrlBtn.addEventListener('click', addImportUrl);
-            clearUrlsBtn.addEventListener('click', clearImportUrls);
-            importProductsBtn.addEventListener('click', importProducts);
-            
-            // Обработчик для Flowwow
-            parseFlowwowBtn.addEventListener('click', () => {
-                const url = flowwowUrlInput.value.trim();
-                if (url) {
-                    parseFlowwowData(url);
-                } else {
-                    alert('Введите ссылку на товар в Flowwow');
-                }
-            });
-            
             // Закрытие модальных окон при клике вне их
             window.addEventListener('click', (e) => {
                 if (e.target === adminModal) {
@@ -3851,51 +3432,9 @@
 
         // Запускаем инициализацию при загрузке страницы
         document.addEventListener('DOMContentLoaded', init);
-        // ==================== ДОБАВЬТЕ ЭТОТ КОД В САМЫЙ КОНЕЦ ФАЙЛА ====================
-
-// Облачное хранилище ImgBB
-async function uploadToImgBB(file) {
-    try {
-        const formData = new FormData();
-        formData.append('image', file);
-        const response = await fetch('https://api.imgbb.com/1/upload?key=c7a3c4f0d63e59f9bf47ed7e92e77079', {
-            method: 'POST', body: formData
-        });
-        const data = await response.json();
-        if (data.success) return data.data.url;
-        throw new Error('Ошибка загрузки');
-    } catch (error) {
-        console.error('Ошибка ImgBB:', error);
-        return await fileToBase64(file);
-    }
-}
-
-// Переопределяем загрузку изображений
-if (typeof handleMainImageFile !== 'undefined') {
-    const originalMain = handleMainImageFile;
-    handleMainImageFile = async function(file) {
-        if (!checkFileSize(file)) return;
-        try {
-            mainImageUpload.innerHTML = '<div class="upload-icon">⏳</div><p>Загружаем в облако...</p>';
-            const imageUrl = await uploadToImgBB(file);
-            if (imageUrl) {
-                productImageUrlInput.value = imageUrl;
-                mainImagePreview.src = imageUrl;
-                mainImagePreview.style.display = 'block';
-                removeMainImageBtn.style.display = 'block';
-                mainImageUpload.querySelector('p').textContent = '✅ Фото в облаке';
-                mainImageBase64 = '';
-                mainImageBase64Input.value = '';
-            }
-        } catch (error) {
-            await originalMain(file);
-        }
-    };
-}
-
-console.log('🖼️ Облачное хранилище подключено!');
+        
+        console.log('🌺 Цветочный магазин "Флора" загружен!');
+        console.log('☁️ Облачное хранилище фотографий активировано');
     </script>
 </body>
 </html>
-
-
