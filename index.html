@@ -1155,7 +1155,56 @@
                 flex-direction: column;
             }
         }
-
+        /* Стили для облачного хранилища */
+        .cloud-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .local-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(255, 193, 7, 0.9);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .upload-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        
+        .status-warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ff9800;
+        }
+        
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
         /* Стили для облачного хранилища */
         .cloud-badge {
             position: absolute;
@@ -2766,7 +2815,61 @@
                 });
             });
         }
-
+        // ==================== ОБНОВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ТОВАРА ====================
+        
+        // Обновляем обработчик формы товара
+        productForm.onsubmit = function(e) {
+            e.preventDefault();
+            
+            // Получаем данные из формы
+            const category = document.getElementById('product-category').value;
+            const name = document.getElementById('product-name').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            
+            // ОСНОВНОЕ ИЗОБРАЖЕНИЕ - используем Base64
+            let image = mainImageBase64 || productImageUrlInput.value || '';
+            if (!image) {
+                alert('Пожалуйста, загрузите основное изображение');
+                return;
+            }
+            
+            // ДОПОЛНИТЕЛЬНЫЕ ИЗОБРАЖЕНИЯ - используем Base64
+            let images = [...additionalImagesBase64];
+            
+            // Если есть URL в поле, добавляем их тоже
+            if (productImagesUrlInput.value) {
+                const urlImages = productImagesUrlInput.value.split(',').map(url => url.trim()).filter(url => url);
+                images = [...images, ...urlImages];
+            }
+            
+            // Если нет дополнительных, используем основное
+            if (images.length === 0) {
+                images = [image];
+            }
+            
+            const video = document.getElementById('product-video').value;
+            const composition = document.getElementById('product-composition').value;
+            const size = document.getElementById('product-size').value;
+            const description = document.getElementById('product-description').value;
+            
+            const product = {
+                category,
+                name,
+                price,
+                image,
+                images,
+                video,
+                composition,
+                size,
+                description
+            };
+            
+            if (editMode && currentEditId) {
+                updateProduct(currentEditId, product);
+            } else {
+                addProduct(product);
+            }
+        };
         // Функция для добавления нового товара
         function addProduct(product) {
             // Генерируем уникальный ID
@@ -3352,4 +3455,5 @@
     </script>
 </body>
 </html>
+
 
